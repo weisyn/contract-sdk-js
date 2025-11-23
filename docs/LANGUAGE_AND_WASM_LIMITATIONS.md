@@ -1,4 +1,4 @@
-# Contract SDK JS - ARCHITECTURE PLAN
+# Contract SDK JS - LANGUAGE AND WASM LIMITATIONS
 
 **版本**: v1.0.0
 **最后更新**: 2025-01-23

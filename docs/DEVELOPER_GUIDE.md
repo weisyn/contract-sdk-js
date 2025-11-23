@@ -1,531 +1,268 @@
-# WES 合约开发指南（TypeScript/AssemblyScript）
+# WES 合约开发指南 - JS SDK 视角
 
-**版本**: v0.1.0-alpha  
-**状态**: ✅ 稳定  
-**最后更新**: 2025-11-11
+**版本**: v1.0.0  
+**最后更新**: 2025-01-23
 
 ---
 
-## 📋 概述
+## 📋 文档定位
 
-本指南介绍如何使用 WES Contract SDK JS 编写 TypeScript/AssemblyScript 智能合约，从模板创建到部署上链的完整开发流水线。
+> 📌 **重要说明**：本文档聚焦 **JS SDK 视角**的合约开发指南。  
+> 如需了解 WES 平台的核心概念、架构设计、ISPC 原理等，请参考主仓库文档。
+
+**本文档目标**：
+- 说明如何使用 JS SDK 开发 WES 智能合约
+- 讲解常见开发模式（参数解析、错误处理、事件、调用外部 API 等）
+- 提供从模板到部署的完整开发流程
+- **引用平台文档**：平台概念（UTXO、ISPC 原理等）请参考主仓库文档
+
+**前置阅读**（平台级文档，来自主仓库）：
+- [智能合约平台文档](../../../weisyn.git/docs/system/platforms/contracts/README.md) - 智能合约平台总览
+- [合约核心概念](../../../weisyn.git/docs/tutorials/contracts/CONCEPTS.md) - 核心概念解释
+- [合约学习路径](../../../weisyn.git/docs/tutorials/contracts/LEARNING_PATH.md) - 分阶段学习路径
 
 ---
 
 ## 🚀 快速开始
 
-### 开发流程概览
+### 前置要求
 
-```mermaid
-graph LR
-    A[安装依赖<br/>AssemblyScript] --> B[创建项目<br/>npm init]
-    B --> C[编写合约<br/>TypeScript/AS]
-    C --> D[编译WASM<br/>asc compile]
-    D --> E[部署合约<br/>wes deploy]
-    E --> F[调用合约<br/>wes call]
-    F --> G[查看结果<br/>事件/日志]
-    
-    style A fill:#E3F2FD
-    style C fill:#C8E6C9
-    style D fill:#FFF9C4
-    style E fill:#F3E5F5
-```
-
-### 1. 安装依赖
+- **Node.js 20+** - 用于开发环境编译
+- **TypeScript 5.0+, AssemblyScript 0.27+** - 用于编译为 WASM
 
 ```bash
-# 安装 AssemblyScript
-npm install -g assemblyscript
+# macOS
+brew install tinygo
 
-# 验证安装
-asc --version
+# Linux/其他
+# 见 https://tinygo.org/getting-started/install/
 ```
 
-### 2. 创建新合约
-
-#### 方式1：使用模板（推荐）
+### 安装 SDK
 
 ```bash
-# 复制学习模板
-cp -r node_modules/@weisyn/contract-sdk-js/templates/learning/hello-world my-contract
-cd my-contract
+npm install @weisyn/contract-sdk-js@v1.0.0
 ```
 
-#### 方式2：从零开始
+### 第一个合约
 
-```bash
-# 创建项目目录
-mkdir my-contract
-cd my-contract
+创建 `hello.ts`:
 
-# 初始化 npm 项目
-npm init -y
+```go
+import
 
-# 安装 SDK
-npm install @weisyn/contract-sdk-js
+import (
+    "@weisyn/contract-sdk-js/framework"
+)
 
-# 安装 AssemblyScript 开发依赖
-npm install --save-dev assemblyscript
-```
-
-### 3. 编写合约
-
-创建 `contract.ts`：
-
-```typescript
-import { Contract, Context, ErrorCode } from '@weisyn/contract-sdk-js/as';
-import { Token } from '@weisyn/contract-sdk-js/helpers';
-
-@contract('MyToken')
-export class MyTokenContract extends Contract {
-  onInit(params: Uint8Array): ErrorCode {
-    // 合约初始化逻辑
-    return ErrorCode.SUCCESS;
-  }
-  
-  @call('Transfer')
-  transfer(): ErrorCode {
-    // 获取参数
-    const params = Context.getContractParams();
-    const toStr = params.parseJSON('to');
-    const amount = params.parseJSONInt('amount');
+//export SayHello
+func SayHello() uint32 {
+    // 获取调用者地址
+    caller := framework.GetCaller()
     
-    // 解析地址
-    const to = Context.parseAddressBase58(toStr);
-    if (to === null) {
-      return ErrorCode.ERROR_INVALID_PARAMS;
-    }
+    // 发出事件
+    message := "Hello, " + string(caller)
+    framework.EmitEvent("Greeting", []byte(message))
     
-    // 使用业务语义接口进行转账
-    const caller = Context.getCaller();
-    const result = Token.transfer(caller, to, amount, null);
-    if (result !== ErrorCode.SUCCESS) {
-      return ErrorCode.ERROR_EXECUTION_FAILED;
-    }
-    
-    return ErrorCode.SUCCESS;
-  }
+    // 返回成功
+    framework.SetReturnData([]byte(message))
+    return framework.SUCCESS
 }
 ```
 
-### 4. 编译合约
+编译为 WASM：
 
 ```bash
-# 使用 AssemblyScript 编译器
-asc contract.ts \
-  --target release \
-  --outFile contract.wasm \
-  --optimize \
-  --noAssert
-```
-
-**编译选项说明**：
-- `--target release`: 发布模式，优化代码大小和执行速度
-- `--optimize`: 启用优化
-- `--noAssert`: 移除断言检查（生产环境）
-
-### 5. 部署合约
-
-```bash
-# 使用 WES CLI 部署
-wes contract deploy \
-  --wasm contract.wasm \
-  --name "MyToken" \
-  --init-params '{}'
-```
-
-### 6. 调用合约
-
-```bash
-# 调用 Transfer 函数
-wes contract call \
-  --contract <合约地址> \
-  --function Transfer \
-  --params '{"to":"<接收者地址>","amount":1000}'
-```
-
-### 7. 查看日志和事件
-
-```bash
-# 查看合约执行日志
-wes contract logs --contract <合约地址>
-
-# 查看合约事件
-wes contract events --contract <合约地址> --event Transfer
+asc -o main.wasm -target wasm -no-debug hello.ts
 ```
 
 ---
 
 ## 📚 核心概念
 
-### SDK 分层架构
-
-合约开发者只需关注业务语义层，SDK 自动处理底层细节：
-
-```mermaid
-graph TB
-    subgraph DEV["👨‍💻 合约开发者"]
-        CODE["合约代码<br/>使用 helpers API"]
-    end
-    
-    subgraph HELPERS["业务语义层 (helpers/)"]
-        TOKEN["Token<br/>转账·铸造"]
-        NFT["NFT<br/>铸造·转移"]
-        STAKING["Staking<br/>质押·委托"]
-        GOV["Governance<br/>提案·投票"]
-        MARKET["Market<br/>托管·释放"]
-    end
-    
-    subgraph FRAMEWORK["框架层 (framework/)"]
-        CONTRACT["Contract 基类"]
-        CONTEXT["Context<br/>上下文"]
-        STORAGE["Storage<br/>状态管理"]
-    end
-    
-    subgraph RUNTIME["运行时层 (runtime/)"]
-        HOSTABI["HostABI 绑定"]
-        MEMORY["Memory 管理"]
-    end
-    
-    subgraph WES["WES 协议层"]
-        EUTXO["EUTXO 模型"]
-        ISPC["ISPC 执行"]
-    end
-    
-    DEV --> HELPERS
-    HELPERS --> FRAMEWORK
-    FRAMEWORK --> RUNTIME
-    RUNTIME --> WES
-    
-    style DEV fill:#E3F2FD
-    style HELPERS fill:#4CAF50,color:#fff
-    style FRAMEWORK fill:#2196F3,color:#fff
-    style RUNTIME fill:#FF9800,color:#fff
-    style WES fill:#9C27B0,color:#fff
-```
-
-### 1. 业务语义优先
-
-**推荐使用 Helpers 层的业务语义接口**：
-
-```typescript
-import { Token } from '@weisyn/contract-sdk-js/helpers';
-import { NFT } from '@weisyn/contract-sdk-js/helpers';
-import { Staking } from '@weisyn/contract-sdk-js/helpers';
-
-// 转账
-const result = Token.transfer(from, to, amount, tokenID);
-
-// 铸造NFT
-const result = NFT.mint(to, tokenID, metadata);
-
-// 质押
-const result = Staking.stake(staker, validator, amount);
-```
-
-**优势**：
-- 代码更简洁直观
-- 自动处理余额检查、交易构建等
-- 类型安全
-
-### 2. 确定性保证
-
-所有交易构建都是确定性的：
+### 合约生命周期
 
 ```mermaid
 graph LR
-    A[合约执行] --> B{确定性检查}
-    B -->|✅ 通过| C[生成交易]
-    B -->|❌ 失败| D[拒绝执行]
+    A[合约部署] --> B[Init 初始化]
+    B --> C[Call 调用]
+    C --> D[View 查询]
+    C --> C
     
-    C --> E[相同输入<br/>相同输出]
-    E --> F[相同 TxID]
-    
-    G[禁用项] --> H[系统时间<br/>使用区块时间戳]
-    G --> I[随机数<br/>使用确定性哈希]
-    G --> J[外部IO<br/>通过受控机制]
-    G --> K[网络访问<br/>通过受控机制]
-    
-    style B fill:#FFF9C4
-    style E fill:#C8E6C9
-    style G fill:#FFCDD2
+    style A fill:#E3F2FD
+    style B fill:#C8E6C9
+    style C fill:#FFF9C4
+    style D fill:#FFE0B2
 ```
 
-**确定性要求**：
-- ✅ 禁用系统时间（使用区块时间戳）
-- ✅ 禁用随机数（使用确定性哈希）
-- ✅ 禁用外部IO（通过受控机制）
-- ✅ 禁用网络访问（通过受控机制）
+- **Init**：合约初始化，设置初始状态
+- **Call**：合约调用，修改状态
+- **View**：合约查询，只读操作
 
-**验证方法**：100次重复执行产生相同TxID
+### SDK 分层架构
 
-### 3. 错误处理
+```mermaid
+graph TB
+    A[合约代码] -->|使用| B[Helpers 业务语义层]
+    B -->|基于| C[Framework 框架层]
+    C -->|封装| D[HostABI 原语层]
+    D -->|调用| E[WES ISPC 引擎]
+    
+    style A fill:#FFD700,color:#000
+    style B fill:#4CAF50,color:#fff
+    style C fill:#2196F3,color:#fff
+    style D fill:#9C27B0,color:#fff
+    style E fill:#F44336,color:#fff
+```
 
-```typescript
-const result = Token.transfer(from, to, amount, tokenID);
-if (result !== ErrorCode.SUCCESS) {
-  switch (result) {
-    case ErrorCode.ERROR_INSUFFICIENT_BALANCE:
-      // 余额不足
-      HostABI.logDebug('Insufficient balance');
-      break;
-    case ErrorCode.ERROR_INVALID_PARAMS:
-      // 参数无效
-      HostABI.logDebug('Invalid parameters');
-      break;
-    default:
-      // 其他错误
-      HostABI.logDebug('Execution failed');
-  }
-  return result;
+- **Helpers 层**：业务语义接口（`token.Transfer()`, `staking.Stake()` 等）
+- **Framework 层**：HostABI 封装（环境查询、事件日志等）
+- **HostABI 层**：17 个最小原语（由 ISPC 提供）
+
+---
+
+## 🎯 常见开发模式
+
+### 参数解析
+
+```go
+import (
+    "@weisyn/contract-sdk-js/framework"
+    "@weisyn/contract-sdk-js/helpers/token"
+)
+
+//export Transfer
+func Transfer() uint32 {
+    // 获取调用参数
+    params := framework.GetCallParams()
+    
+    // 解析参数（JSON 格式）
+    // 注意：SDK 内部实现了轻量级 JSON 解析器
+    // 仅支持基本字段提取
+    
+    // 使用 Helpers API（推荐）
+    // token.Transfer 内部已经处理了参数解析
+    return token.Transfer(params)
+}
+```
+
+### 错误处理
+
+```go
+import (
+    "@weisyn/contract-sdk-js/framework"
+    "@weisyn/contract-sdk-js/helpers/token"
+)
+
+//export Transfer
+func Transfer() uint32 {
+    // Helpers API 内部已经处理了错误码映射
+    // 返回标准错误码
+    errCode := token.Transfer(params)
+    if errCode != framework.SUCCESS {
+        return errCode
+    }
+    
+    return framework.SUCCESS
+}
+```
+
+### 事件发出
+
+```go
+import "@weisyn/contract-sdk-js/framework"
+
+//export Transfer
+func Transfer() uint32 {
+    // 发出事件
+    framework.EmitEvent("Transfer", []byte("from:alice,to:bob,amount:100"))
+    
+    return framework.SUCCESS
+}
+```
+
+### 外部 API 调用
+
+```go
+import "@weisyn/contract-sdk-js/helpers/external"
+
+//export CallExternalAPI
+func CallExternalAPI() uint32 {
+    // 调用外部 API（受控外部交互）
+    result, errCode := external.Call("https://api.example.com/data", nil)
+    if errCode != framework.SUCCESS {
+        return errCode
+    }
+    
+    // 处理结果
+    framework.SetReturnData(result)
+    return framework.SUCCESS
 }
 ```
 
 ---
 
-## 🎯 常见场景
+## 🏗️ 开发流程
 
-### 场景1：简单转账
+### 1. 选择模板
 
-```typescript
-import { Token } from '@weisyn/contract-sdk-js/helpers';
-import { Context, ErrorCode } from '@weisyn/contract-sdk-js/as';
+参考 [合约模板](../templates/README.md) 选择合适的模板：
+- **学习模板**：hello-world、simple-token、basic-nft
+- **标准业务模板**：token、staking、governance、market、nft、rwa、defi
 
-@call('Transfer')
-transfer(): ErrorCode {
-  const params = Context.getContractParams();
-  const toStr = params.parseJSON('to');
-  const amount = params.parseJSONInt('amount');
-  
-  const to = Context.parseAddressBase58(toStr);
-  if (to === null) {
-    return ErrorCode.ERROR_INVALID_PARAMS;
-  }
-  
-  const caller = Context.getCaller();
-  return Token.transfer(caller, to, amount, null);
-}
-```
-
-### 场景2：批量转账
-
-```typescript
-import { Token } from '@weisyn/contract-sdk-js/helpers';
-import { Context, ErrorCode } from '@weisyn/contract-sdk-js/as';
-
-@call('BatchTransfer')
-batchTransfer(): ErrorCode {
-  const params = Context.getContractParams();
-  const recipients = params.parseJSONArray('recipients');
-  const amounts = params.parseJSONIntArray('amounts');
-  
-  if (recipients.length !== amounts.length) {
-    return ErrorCode.ERROR_INVALID_PARAMS;
-  }
-  
-  const caller = Context.getCaller();
-  for (let i = 0; i < recipients.length; i++) {
-    const to = Context.parseAddressBase58(recipients[i]);
-    if (to === null) {
-      return ErrorCode.ERROR_INVALID_PARAMS;
-    }
-    
-    const result = Token.transfer(caller, to, amounts[i], null);
-    if (result !== ErrorCode.SUCCESS) {
-      return result;
-    }
-  }
-  
-  return ErrorCode.SUCCESS;
-}
-```
-
-### 场景3：NFT 铸造
-
-```typescript
-import { NFT } from '@weisyn/contract-sdk-js/helpers';
-import { Context, ErrorCode } from '@weisyn/contract-sdk-js/as';
-
-@call('MintNFT')
-mintNFT(): ErrorCode {
-  const params = Context.getContractParams();
-  const toStr = params.parseJSON('to');
-  const tokenID = params.parseJSON('token_id');
-  const metadataStr = params.parseJSON('metadata');
-  
-  const to = Context.parseAddressBase58(toStr);
-  if (to === null) {
-    return ErrorCode.ERROR_INVALID_PARAMS;
-  }
-  
-  const metadata = String.UTF8.encode(metadataStr);
-  return NFT.mint(to, tokenID, metadata);
-}
-```
-
----
-
-## 🔧 开发工具链
-
-### 1. 模板创建
+### 2. 本地开发
 
 ```bash
-# 使用学习模板
-cp -r node_modules/@weisyn/contract-sdk-js/templates/learning/simple-token my-token
-
-# 使用标准模板
-cp -r node_modules/@weisyn/contract-sdk-js/templates/standard/token/erc20-token my-erc20
-```
-
-### 2. 编译配置
-
-创建 `asconfig.json`：
-
-```json
-{
-  "targets": {
-    "release": {
-      "binaryFile": "build/contract.wasm",
-      "textFile": "build/contract.wat",
-      "optimizeLevel": 3,
-      "shrinkLevel": 2,
-      "converge": false,
-      "noAssert": true
-    },
-    "debug": {
-      "binaryFile": "build/contract.debug.wasm",
-      "textFile": "build/contract.debug.wat",
-      "sourceMap": true,
-      "debug": true
-    }
-  },
-  "options": {
-    "bindings": "esm"
-  }
-}
-```
-
-### 3. 本地测试
-
-```bash
-# 使用本地 WASM runner 测试
-npm install --save-dev @weisyn/wasm-runner
-wasm-runner contract.wasm --function Transfer --params '{"to":"...","amount":1000}'
-```
-
-### 4. 调试技巧
-
-```typescript
-import { HostABI } from '@weisyn/contract-sdk-js/runtime';
-
-// 记录调试日志
-HostABI.logDebug('Processing transfer...');
-HostABI.logDebug(`From: ${from}, To: ${to}, Amount: ${amount}`);
-
-// 发出事件（可用于调试）
-HostABI.emitEvent(JSON.stringify({
-  name: 'Debug',
-  message: 'Transfer completed',
-  amount: amount.toString()
-}));
-```
-
----
-
-## 📖 完整开发流水线
-
-### 1. 模板创建
-
-```bash
-# 选择模板
-cp -r templates/learning/simple-token my-contract
+# 克隆模板
+cp -r templates/learning/hello-world my-contract
 cd my-contract
+
+# 修改代码
+# ...
+
+# 编译
+./build.sh
 ```
 
-### 2. 编写合约代码
-
-编辑 `contract.ts`，使用 Helpers 层 API 实现业务逻辑。
-
-### 3. 编译 WASM
+### 3. 测试
 
 ```bash
-# 开发模式（带调试信息）
-asc contract.ts --target debug --outFile contract.debug.wasm
+# 运行测试
+go test ./...
 
-# 发布模式（优化）
-asc contract.ts --target release --outFile contract.wasm
+# 或使用 Workbench 进行集成测试
+# 参考：主仓库集成测试指南
 ```
 
-### 4. 本地测试
+### 4. 部署
 
-```bash
-# 使用本地 runner 测试
-wasm-runner contract.wasm --function <函数名> --params '<JSON参数>'
-```
-
-### 5. 部署到链上
-
-```bash
-# 部署合约
-wes contract deploy --wasm contract.wasm --name "MyContract"
-
-# 获取合约地址
-CONTRACT_ADDR=$(wes contract deploy --wasm contract.wasm --name "MyContract" | grep "Contract Address" | awk '{print $3}')
-```
-
-### 6. 调用合约
-
-```bash
-# 调用合约函数
-wes contract call \
-  --contract $CONTRACT_ADDR \
-  --function Transfer \
-  --params '{"to":"<地址>","amount":1000}'
-```
-
-### 7. 查看日志和事件
-
-```bash
-# 查看执行日志
-wes contract logs --contract $CONTRACT_ADDR --limit 10
-
-# 查看事件
-wes contract events --contract $CONTRACT_ADDR --event Transfer
-
-# 查看特定交易的事件
-wes tx events --tx <交易哈希>
-```
+使用 Workbench 或 Client SDK 部署合约。
 
 ---
 
-## ⚠️ 注意事项
+## 📖 进一步阅读
 
-### AssemblyScript 限制
+### 核心文档
 
-- ❌ **不支持联合类型**：使用枚举或接口替代
-- ❌ **不支持可选属性**：使用 `| null` 或默认值
-- ❌ **字符串操作受限**：使用 `String.UTF8` 进行编码/解码
-- ❌ **不支持动态导入**：所有导入必须在编译时确定
+- **[API 参考](./API_REFERENCE.md)** - 详细的 API 文档
+- **[业务场景实现指南](./BUSINESS_SCENARIOS.md)** - 如何实现业务场景
+- **[语言与 WASM 限制](./LANGUAGE_AND_WASM_LIMITATIONS.md)** - Typescript/AssemblyScript/TinyTypescript/AssemblyScript 限制和注意事项
+- **[WES Error Spec 实施](./WES_ERROR_SPEC_IMPLEMENTATION.md)** - 错误处理规范
 
-详见：[AssemblyScript 兼容性指南](./ASSEMBLYSCRIPT_COMPATIBILITY.md)
+### 模块文档
 
-### 最佳实践
+- **[Helpers 层文档](../helpers/README.md)** - 业务语义层详细说明
+- **[Framework 层文档](../framework/README.md)** - 框架层详细说明
+- **[合约模板](../templates/README.md)** - SDK 提供的合约开发模板
 
-1. **优先使用 Helpers 层**：避免直接使用 Framework 层的 TransactionBuilder
-2. **类型安全**：使用 SDK 提供的类型（`Address`, `Amount`, `TokenID` 等）
-3. **错误处理**：使用统一的错误码，便于错误处理和调试
-4. **事件和日志**：合理使用事件和日志，避免过度使用影响性能
-5. **地址编码**：使用 Base58 编码（与 Go SDK 保持一致）
+### 平台文档（主仓库）
 
----
-
-## 🔗 相关文档
-
-- [API 参考](./API_REFERENCE.md) - 完整 API 文档
-- [架构设计](./ARCHITECTURE.md) - 整体架构说明
-- [AssemblyScript 兼容性指南](./ASSEMBLYSCRIPT_COMPATIBILITY.md) - AssemblyScript 限制和最佳实践
-- [合约模板](../templates/README.md) - SDK 提供的合约开发模板
+- [智能合约平台文档](../../../weisyn.git/docs/system/platforms/contracts/README.md) - 平台总览
+- [合约教程](../../../weisyn.git/docs/tutorials/contracts/CONCEPTS.md) - 合约开发教程
+- [WASM 环境说明](../../../weisyn.git/docs/tutorials/contracts/wasm-environment.md) - WASM 环境详解
 
 ---
 
-**最后更新**: 2025-11-11
+**最后更新**: 2025-01-23  
+**维护者**: WES Core Team
+

@@ -1,7 +1,7 @@
 # Contract SDK JS - 文档中心
 
-**版本**: v0.1.0-alpha  
-**最后更新**: 2025-11-19
+**版本**: v1.0.0  
+**最后更新**: 2025-01-23
 
 ---
 
@@ -11,7 +11,7 @@
 
 **按角色快速找到你需要的文档**
 
-[👨‍💻 开发者](#-开发者) • [🏗️ 架构师/贡献者](#️-架构师贡献者) • [📖 参考文档](#-参考文档)
+[👨‍💻 合约开发者](#-合约开发者) • [🏗️ 架构师/贡献者](#️-架构师贡献者) • [📖 参考文档](#-参考文档)
 
 </div>
 
@@ -21,83 +21,141 @@
 
 ### 文档层次关系
 
-```
-主 README.md（用户入口）
-    │
-    ├─> 快速开始、核心特性、架构概览
-    │
-    └─> docs/README.md（文档中心）← 你现在在这里
-            │
-            ├─> 开发者指南、API 参考
-            ├─> 架构设计文档
-            └─> 模块文档、示例代码
+```mermaid
+graph TB
+    subgraph PLATFORM["🌐 平台级文档（主仓库 weisyn.git/docs）"]
+        direction TB
+        P1[system/platforms/contracts/<br/>智能合约平台文档]
+        P2[components/core/ispc/<br/>ISPC 核心组件文档]
+        P3[tutorials/contracts/<br/>合约教程文档]
+        P4[error-spec/<br/>错误规范文档]
+    end
+    
+    subgraph SDK["🔧 SDK 文档（本仓库 contract-sdk-js.git/docs）"]
+        direction TB
+        S1[README.md<br/>文档中心]
+        S2[DEVELOPER_GUIDE.md<br/>JS SDK 开发者指南]
+        S3[API_REFERENCE.md<br/>JS SDK API 参考]
+        S4[BUSINESS_SCENARIOS.md<br/>JS SDK 业务场景实现]
+        S5[SDK_ARCHITECTURE.md<br/>SDK 内部分层架构]
+    end
+    
+    subgraph MAIN["📖 主 README.md"]
+        M1[SDK 总览和快速开始]
+    end
+    
+    MAIN --> S1
+    S1 --> S2
+    S1 --> S3
+    S1 --> S4
+    S1 --> S5
+    
+    S2 -.引用.-> P1
+    S2 -.引用.-> P3
+    S3 -.引用.-> P2
+    S4 -.引用.-> P1
+    S5 -.引用.-> P1
+    
+    style PLATFORM fill:#E3F2FD,color:#000
+    style SDK fill:#C8E6C9,color:#000
+    style MAIN fill:#FFF9C4,color:#000
 ```
 
+**核心原则**：
+- ✅ **平台级文档**（`weisyn.git/docs`）：系统级、平台级、规范级的权威说明
+- ✅ **SDK 文档**（`contract-sdk-js.git/docs`）：JS SDK 这一层的解读、对接与示例
+- ✅ **引用关系**：SDK 文档引用平台文档，避免重复，保持一致性
+
 **主 README.md** 的定位：
-- ✅ **用户友好的入口**：快速了解 SDK，快速开始
+- ✅ **用户友好的入口**：快速了解 SDK，30秒上手
 - ✅ **核心价值展示**：突出 SDK 的核心能力和优势
-- ✅ **简洁的架构说明**：SDK 定位和架构概览
+- ✅ **简洁的架构说明**：分层架构的概览
 - ✅ **文档导航入口**：指向文档中心（本文件）
 
 **docs/README.md**（本文件）的定位：
-- ✅ **文档索引中心**：列出所有文档及其定位
+- ✅ **SDK 文档索引中心**：列出所有 SDK 相关文档及其定位
+- ✅ **平台文档索引**：指向主仓库的平台级文档（只读、权威版本）
 - ✅ **按角色导航**：为不同角色提供快速导航路径
 - ✅ **文档分类**：按用户文档、设计文档、参考文档分类
 - ✅ **使用建议**：为不同场景提供文档使用建议
 
 ---
 
-## 👨‍💻 开发者
+## 👨‍💻 合约开发者
 
 ### 🚀 快速开始路径
 
+```mermaid
+graph LR
+    A[主 README<br/>30秒上手] --> B[使用模板<br/>创建项目]
+    B --> C[开发者指南<br/>深入学习]
+    C --> D[业务场景指南<br/>实现场景]
+    D --> E[API 参考<br/>查阅接口]
+    
+    style A fill:#E3F2FD
+    style B fill:#C8E6C9
+    style C fill:#FFF9C4
+    style D fill:#FFE0B2
+    style E fill:#F3E5F5
 ```
-1. [主 README](../README.md)
-   └─> 了解 SDK 是什么，快速开始
-   
-2. [合约模板](../templates/)
-   └─> 使用模板快速开始
-   
-3. [开发者指南](./DEVELOPER_GUIDE.md)
-   └─> 深入学习核心概念
-   
-4. [API 参考](./API_REFERENCE.md)
-   └─> 查阅详细的 API 文档
-```
+
+**推荐路径**：
+1. **[主 README](../README.md)** - 了解 SDK 是什么，30秒上手
+2. **[合约模板](../templates/README.md)** - 使用模板快速创建项目
+3. **[开发者指南](./DEVELOPER_GUIDE.md)** - 深入学习核心概念和开发模式
+4. **[业务场景实现指南](./BUSINESS_SCENARIOS.md)** - 学习如何实现业务场景
+5. **[API 参考](./API_REFERENCE.md)** - 查阅详细的 API 文档
 
 ### 📖 核心文档
 
 #### 必读文档（P0）
 
-- ⭐ **[主 README](../README.md)** - SDK 总览和快速开始
+- ⭐ **[主 README](../README.md)** - SDK 总览和 30 秒上手
   - SDK 简介和核心价值
-  - 安装和第一个示例
+  - 安装和第一个合约
   - 核心功能概览
+  - **合约模板**：如何使用模板快速开始
 
-- ⚠️ **[AssemblyScript 兼容性指南](./ASSEMBLYSCRIPT_COMPATIBILITY.md)** - **必读**：避免常见错误
-  - AssemblyScript 限制说明
-  - 常见错误对照表
-  - 编译错误排查指南
-  - 最佳实践建议
+- 📖 **[开发者指南](./DEVELOPER_GUIDE.md)** - 如何使用 TypeScript/AssemblyScript SDK 开发合约
+  - JS SDK 安装与环境（Node.js/TypeScript/AssemblyScript）
+  - 如何选择并使用 `templates/` 中的 TS/AS 模板
+  - 与 Workbench（`model-workbench` / `contract-workbench`）的协作流程
+  - 常见开发模式（参数解析、错误处理、事件、调用外部 API 等）
+  - **引用平台文档**：平台概念（UTXO、ISPC 原理等）请参考主仓库文档
 
-- 📖 **[开发者指南](./DEVELOPER_GUIDE.md)** - 如何使用 SDK
-  - 快速开始
-  - 核心概念
-  - 常见场景
-  - 最佳实践
-
-- 📚 **[API 参考](./API_REFERENCE.md)** - SDK 接口详细说明
-  - Runtime 层 API
-  - Framework 层 API
-  - Helpers 层 API
+- 📚 **[API 参考](./API_REFERENCE.md)** - TypeScript/AssemblyScript SDK 接口详细说明
+  - Framework 层 API（TypeScript/AssemblyScript 语言封装）
+  - Helpers 层 API（业务语义接口）
+  - 接口参数和返回值
   - 使用示例
+  - **引用平台文档**：HostABI 原语能力请参考主仓库文档
 
 #### 推荐文档（P1）
 
-- 💡 **[合约模板](../templates/)** - 合约开发模板
-  - 学习模板（Hello World、Simple Token、Basic NFT）
-  - 标准模板（ERC-20、DAO Governance、Market）
-  - 模板使用指南
+- 🎯 **[业务场景实现指南](./BUSINESS_SCENARIOS.md)** - 如何使用 JS SDK 实现业务场景
+  - 每个场景前半部分：链接到主仓库对应场景文档
+  - 每个场景后半部分：JS SDK 版本的实现建议 + 模板指引 + 关键 API
+  - 电商、制造业、DeFi、NFT 等场景
+
+- 🔧 **[Helpers 层文档](../helpers/README.md)** - 业务语义层详细说明
+  - Token、Staking、Governance、Market、RWA、External 模块
+  - 各模块 API 和使用示例（TypeScript/AssemblyScript 语言）
+
+- 💡 **[合约模板](../templates/README.md)** - SDK 提供的合约开发模板
+  - 学习模板（hello-world、simple-token、basic-nft）
+  - 标准业务模板（token、staking、governance、market、nft、rwa、defi）
+
+#### 可选文档（P2）
+
+- 🏗️ **[Framework 层文档](../framework/README.md)** - 框架层详细说明
+  - HostABI 封装（TypeScript/AssemblyScript 语言实现）
+  - 环境查询、事件日志
+  - 交易构建（内部实现）
+
+- ⚠️ **[语言与 WASM 限制](./LANGUAGE_AND_WASM_LIMITATIONS.md)** - TypeScript/AssemblyScript 特有的限制和注意事项
+  - AssemblyScript 支持矩阵
+  - JSON/Date/Math.random 等限制
+  - 编译参数和优化建议
 
 ---
 
@@ -107,48 +165,65 @@
 
 #### 核心设计文档（P1）
 
-- 🏗️ **[架构设计](./ARCHITECTURE.md)** - SDK 整体架构设计讨论
-  - 模块组织方式
-  - 依赖关系说明
-  - 设计决策记录
+- 🏗️ **[SDK 内部架构](./SDK_ARCHITECTURE.md)** - SDK 内部分层架构设计
+  - **聚焦 SDK 自身**：helpers 分层、framework 层设计
+  - **引用平台架构**：WES 7 层架构请参考主仓库文档
+  - 模块组织方式、依赖关系说明、设计决策记录
+
+- 📊 **[应用场景分析](./APPLICATION_SCENARIOS_ANALYSIS.md)** - SDK 职责边界分析
+  - **聚焦 SDK 职责**：在某场景中，JS SDK 负责哪一段？
+  - **引用平台场景**：详细业务流图、跨子系统交互请参考主仓库文档
+  - SDK 与 Client SDK、Workbench、节点的职责划分
+
+- 🔮 **[ISPC 创新分析](./ISPC_INNOVATION_ANALYSIS.md)** - JS SDK 如何使用 ISPC
+  - **聚焦 SDK 集成**：对 TS/AS 合约开发者，ISPC 带来哪些能力
+  - **引用平台文档**：ISPC 核心范式、受控外部交互机制请参考主仓库文档
+  - 这些能力在 JS SDK 中分别由哪些 helpers / framework API 暴露
+  - 典型"外部调用 + ZK / 证明"的开发模式
 
 #### 规划文档（P2）
 
-- 📈 **[架构规划](./ARCHITECTURE_PLAN.md)** - SDK 架构规划文档
-  - 未来演进方向
+- 📈 **[架构规划](./ARCHITECTURE_PLAN.md)** - JS SDK 架构规划文档
+  - **聚焦 SDK 自身**：JS SDK 未来演进方向（新增 helpers 模块、改进模板目录等）
+  - **引用平台规划**：平台级 roadmap 请参考主仓库文档
   - 技术债务管理
 
-#### 集成文档（P1）
-
-- 🔗 **[能力对比矩阵](./capability-comparison.md)** - Go/JS SDK 能力对比
-  - Framework 层能力对比
-  - Helpers 层能力对比
-  - 模板能力对比
-  - 文档能力对比
-
-- 🔗 **[错误处理集成](./ERROR_HANDLING_INTEGRATION.md)** - Contract SDK ↔ Client SDK 错误处理链路
-  - 合约错误码到 WES Problem Details 映射
-  - Client SDK 错误解析流程
-  - 完整错误处理示例
-
-- 🔗 **[Helpers-Client 映射](./HELPERS_CLIENT_MAPPING.md)** - Contract SDK Helpers ↔ Client SDK Services 对应关系
-  - 各模块的 Helpers-Services 映射表
-  - 使用场景示例
-  - 双视角开发指南
+- 📐 **[场景可视化指南](./SCENARIOS_VISUAL_GUIDE.md)** - SDK 相关的简明架构/场景图
+  - SDK 内部分层架构图
+  - SDK 与平台其他组件的交互图
+  - **引用平台文档**：详细业务流图请参考主仓库文档
 
 ---
 
 ## 📖 参考文档
 
-### 规范文档
+### SDK 参考文档（本仓库）
 
-- **模板元数据格式**：`src/metadata/schema.json` - JSON Schema 定义
-- **TypeScript 类型**：`src/types.ts` - 完整的类型定义
+- ⚠️ **[语言与 WASM 限制](./LANGUAGE_AND_WASM_LIMITATIONS.md)** - TypeScript/AssemblyScript 特有的限制和注意事项
+  - AssemblyScript 支持矩阵
+  - JSON/Date/Math.random 等限制
+  - 编译参数和优化建议
+  - 禁止使用的标准库
 
-### 开发指南
+- 🔧 **[WES Error Spec 实施](./WES_ERROR_SPEC_IMPLEMENTATION.md)** - JS SDK 如何对接错误规范
+  - 错误码映射
+  - 错误处理模式
+  - **引用平台文档**：WES Error Specification 请参考主仓库文档
 
-- **测试指南**：`tests/` - 单元测试和集成测试
-- **构建配置**：`rollup.config.js` - Rollup 构建配置
+- 📋 **[文档体系说明](./DOCUMENTATION_STRUCTURE.md)** - 文档体系与分层说明
+  - SDK 文档与平台文档的关系
+  - 文档组织结构
+  - 与根 README 的映射关系
+
+### 平台参考文档（主仓库）
+
+以下文档来自 `weisyn.git/docs`，是平台级参考文档的权威版本：
+
+- 📘 **[HostABI 规范](../../../weisyn.git/docs/components/core/ispc/capabilities/hostabi-primitives.md)** - HostABI 原语能力
+- 🔗 **[接口映射](../../../weisyn.git/docs/reference/contracts/pkg-interfaces-to-hostabi-mapping.md)** - pkg/interfaces 到 Host ABI 映射
+- 🔧 **[工具链版本矩阵](../../../weisyn.git/docs/reference/contracts/toolchain-version-matrix.md)** - 工具链版本要求
+- 🧪 **[集成测试指南](../../../weisyn.git/docs/tutorials/contracts/integration-testing.md)** - 合约集成测试
+- 🌐 **[WASM 环境说明](../../../weisyn.git/docs/tutorials/contracts/wasm-environment.md)** - WASM 环境详解
 
 ---
 
@@ -156,76 +231,104 @@
 
 ### 新手入门路径
 
+```mermaid
+graph TB
+    A[主 README<br/>30秒上手] --> B[使用模板<br/>创建项目]
+    B --> C[开发者指南<br/>深入学习]
+    C --> D[示例代码<br/>参考实现]
+    
+    A -.了解平台概念.-> P[平台文档<br/>主仓库]
+    C -.了解平台概念.-> P
+    
+    style A fill:#E3F2FD
+    style B fill:#C8E6C9
+    style C fill:#FFF9C4
+    style D fill:#FFE0B2
+    style P fill:#F3E5F5
 ```
-1. [主 README](../README.md)
-   └─> 了解 SDK 是什么，快速开始
-   
-2. [合约模板](../templates/)
-   └─> 使用模板快速开始
-   
-3. [开发者指南](./DEVELOPER_GUIDE.md)
-   └─> 深入学习核心概念
-   
-4. [API 参考](./API_REFERENCE.md)
-   └─> 查阅详细的 API 文档
-```
+
+1. **[主 README](../README.md)** - 了解 SDK 是什么，30秒上手
+2. **[合约模板](../templates/README.md)** - 使用模板快速创建项目
+3. **[开发者指南](./DEVELOPER_GUIDE.md)** - 深入学习核心概念
+4. **[示例代码](../templates/README.md)** - 参考实际应用示例
+5. **平台文档**（主仓库）- 如需了解平台概念，参考平台文档
 
 ### 功能开发路径
 
+```mermaid
+graph LR
+    A[核心功能] --> B[业务场景指南]
+    B --> C[Helpers 层文档]
+    C --> D[API 参考]
+    
+    style A fill:#E3F2FD
+    style B fill:#C8E6C9
+    style C fill:#FFF9C4
+    style D fill:#F3E5F5
 ```
-1. [核心功能](../README.md#-核心功能)
-   └─> 了解 SDK 提供的功能
-   
-2. [开发者指南](./DEVELOPER_GUIDE.md)
-   └─> 学习如何使用 SDK
-   
-3. [API 参考](./API_REFERENCE.md)
-   └─> 查阅详细的 API 文档
-   
-4. [合约模板](../templates/)
-   └─> 参考实际应用模板
-```
+
+1. **[核心功能](../README.md#-核心能力)** - 了解 SDK 提供的功能
+2. **[业务场景实现指南](./BUSINESS_SCENARIOS.md)** - 学习如何实现业务场景
+3. **[Helpers 层文档](../helpers/README.md)** - 查看业务语义接口说明
+4. **[API 参考](./API_REFERENCE.md)** - 查阅详细的 API 文档
 
 ### 深入理解路径
 
+```mermaid
+graph TB
+    A[SDK 架构] --> B[SDK 内部架构]
+    B --> C[ISPC 创新分析]
+    C --> D[HostABI 规范<br/>主仓库]
+    
+    style A fill:#E3F2FD
+    style B fill:#C8E6C9
+    style C fill:#FFF9C4
+    style D fill:#F3E5F5
 ```
-1. [SDK 架构](../README.md#️-架构概览)
-   └─> 理解 SDK 定位和架构
-   
-2. [架构设计](./ARCHITECTURE.md)
-   └─> 了解架构设计决策
-   
-3. [源代码](../src/)
-   └─> 深入源码实现
-```
+
+1. **[SDK 架构](../README.md#-架构概览)** - 理解分层架构
+2. **[SDK 内部架构](./SDK_ARCHITECTURE.md)** - 了解架构设计决策
+3. **[ISPC 创新分析](./ISPC_INNOVATION_ANALYSIS.md)** - 理解 JS SDK 如何使用 ISPC
+4. **[HostABI 规范](../../../weisyn.git/docs/components/core/ispc/capabilities/hostabi-primitives.md)** - 深入底层能力（主仓库）
 
 ---
 
 ## 📋 文档分类
 
-### 用户文档（面向开发者）
+### 用户文档（面向合约开发者）
 
 | 文档 | 说明 | 优先级 |
 |------|------|--------|
 | ⭐ [主 README](../README.md) | SDK 总览和快速开始 | P0 |
-| 📖 [开发者指南](./DEVELOPER_GUIDE.md) | 如何使用 SDK | P0 |
-| 📚 [API 参考](./API_REFERENCE.md) | SDK 接口详细说明 | P0 |
-| 💡 [合约模板](../templates/) | 合约开发模板 | P1 |
+| 📖 [开发者指南](./DEVELOPER_GUIDE.md) | 如何使用 JS SDK 开发合约 | P0 |
+| 📚 [API 参考](./API_REFERENCE.md) | JS SDK 接口详细说明 | P0 |
+| 🎯 [业务场景实现指南](./BUSINESS_SCENARIOS.md) | 如何用 JS SDK 实现业务场景 | P1 |
+| 🔧 [Helpers 层文档](../helpers/README.md) | 业务语义层详细说明 | P1 |
+| 🏗️ [Framework 层文档](../framework/README.md) | 框架层详细说明 | P2 |
+| 💡 [合约模板](../templates/README.md) | SDK 提供的合约开发模板 | P1 |
 
 ### 设计文档（面向架构师和贡献者）
 
 | 文档 | 说明 | 优先级 |
 |------|------|--------|
-| 🏗️ [架构设计](./ARCHITECTURE.md) | 架构设计讨论 | P1 |
-| 📈 [架构规划](./ARCHITECTURE_PLAN.md) | 架构规划文档 | P2 |
+| 🏗️ [SDK 内部架构](./SDK_ARCHITECTURE.md) | SDK 内部分层架构设计 | P1 |
+| 📊 [应用场景分析](./APPLICATION_SCENARIOS_ANALYSIS.md) | SDK 职责边界分析 | P1 |
+| 📈 [架构规划](./ARCHITECTURE_PLAN.md) | JS SDK 架构规划文档 | P2 |
+| 🔮 [ISPC 创新分析](./ISPC_INNOVATION_ANALYSIS.md) | JS SDK 如何使用 ISPC | P1 |
+| 📐 [场景可视化指南](./SCENARIOS_VISUAL_GUIDE.md) | SDK 相关的简明架构图 | P2 |
 
 ### 参考文档（面向高级开发者）
 
-| 文档 | 说明 | 优先级 |
-|------|------|--------|
-| 📘 [模板元数据格式](../src/metadata/schema.json) | JSON Schema 定义 | P2 |
-| 🔗 [TypeScript 类型](../src/types.ts) | 完整的类型定义 | P2 |
-| 🧪 [测试代码](../tests/) | 单元测试和集成测试 | P2 |
+| 文档 | 说明 | 来源 |
+|------|------|------|
+| ⚠️ [语言与 WASM 限制](./LANGUAGE_AND_WASM_LIMITATIONS.md) | TS/AS 限制和注意事项 | SDK 文档 |
+| 🔧 [WES Error Spec 实施](./WES_ERROR_SPEC_IMPLEMENTATION.md) | JS SDK 如何对接错误规范 | SDK 文档 |
+| 📋 [文档体系说明](./DOCUMENTATION_STRUCTURE.md) | 文档体系与分层说明 | SDK 文档 |
+| 📘 [HostABI 规范](../../../weisyn.git/docs/components/core/ispc/capabilities/hostabi-primitives.md) | HostABI 原语能力 | 主仓库 |
+| 🔗 [接口映射](../../../weisyn.git/docs/reference/contracts/pkg-interfaces-to-hostabi-mapping.md) | pkg/interfaces 到 Host ABI 映射 | 主仓库 |
+| 🔧 [工具链版本矩阵](../../../weisyn.git/docs/reference/contracts/toolchain-version-matrix.md) | 工具链版本要求 | 主仓库 |
+| 🧪 [集成测试指南](../../../weisyn.git/docs/tutorials/contracts/integration-testing.md) | 合约集成测试 | 主仓库 |
+| 🌐 [WASM 环境说明](../../../weisyn.git/docs/tutorials/contracts/wasm-environment.md) | WASM 环境详解 | 主仓库 |
 
 ---
 
@@ -233,33 +336,47 @@
 
 ### 如果你是新手
 
-1. **先看主 README**：了解 SDK 是什么，完成快速开始
-2. **运行基础示例**：完成第一个示例，理解基本概念
+1. **先看主 README**：了解 SDK 是什么，完成 30 秒上手
+2. **使用模板创建项目**：通过模板快速开始，理解基本概念
 3. **阅读开发者指南**：深入学习核心概念和最佳实践
 4. **参考示例代码**：学习实际应用示例
+5. **查阅平台文档**（主仓库）：如需了解平台概念（UTXO、ISPC 原理等）
 
 ### 如果你在开发功能
 
 1. **查看核心功能**：了解 SDK 提供的功能
 2. **查阅 API 参考**：查找具体的 API 使用方法
-3. **参考示例代码**：学习实际应用示例
+3. **参考业务场景指南**：学习如何实现业务场景
+4. **查看模块文档**：深入了解特定模块
+5. **查阅平台文档**（主仓库）：如需了解平台级场景和用例
 
 ### 如果你想贡献代码
 
 1. **阅读架构设计文档**：理解 SDK 的整体架构
-2. **查看源代码**：了解实现细节
+2. **查看应用场景分析**：理解 SDK 的职责边界
 3. **参考架构规划**：了解未来演进方向
+4. **阅读 HostABI 规范**（主仓库）：深入理解底层能力
 
 ---
 
-## 🔗 外部资源
+## 🔗 相关链接
 
-- [WES 主项目](https://github.com/weisyn/weisyn-core) - WES 区块链核心实现
-- [Contract SDK (Go)](https://github.com/weisyn/contract-sdk-go) - 智能合约开发 SDK（Go）
-- [Client SDK (JS/TS)](https://github.com/weisyn/client-sdk-js) - 客户端 SDK（JavaScript/TypeScript 版本）
+### WES 平台资源
+
+- [WES 主项目](https://github.com/weisyn/weisyn) - WES 区块链主仓库
+- [WES 文档中心](../../../weisyn.git/docs/) - 完整技术文档
+- [WES 系统架构](../../../weisyn.git/docs/system/architecture/) - 系统架构详解
+- [WES 主 README](../../../weisyn.git/README.md) - WES 项目总览
+
+### SDK 相关资源
+
+- [Contract SDK JS](../README.md) - TypeScript/AssemblyScript 合约 SDK 主 README
+- [Contract SDK Go](../../contract-sdk-go.git/README.md) - Go 合约 SDK
+- [Client SDK Go](../../client-sdk-go.git/README.md) - Go 客户端 SDK
+- [Model Workbench](../../workbench/model-workbench.git/README.md) - 模型工作台
 
 ---
 
-**最后更新**: 2025-11-19  
+**最后更新**: 2025-01-23  
 **维护者**: WES Core Team
 

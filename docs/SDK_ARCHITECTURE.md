@@ -1,4 +1,4 @@
-# Contract SDK JS - ARCHITECTURE PLAN
+# Contract SDK JS - SDK ARCHITECTURE
 
 **版本**: v1.0.0
 **最后更新**: 2025-01-23
