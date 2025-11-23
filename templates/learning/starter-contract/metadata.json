@@ -1,0 +1,246 @@
+{
+  "id": "starter-contract",
+  "name": "Starter Contract",
+  "category": "Learning",
+  "description": "入门合约模板，提供空白但结构完整的合约骨架，帮助开发者从零开始构建自定义合约",
+  "tags": [
+    "learning",
+    "intermediate",
+    "starter",
+    "template",
+    "custom"
+  ],
+  "parameters": [],
+  "risks": [],
+  "prerequisites": [
+    "了解 TypeScript/AssemblyScript 基础语法",
+    "了解 WES 合约基本概念",
+    "完成 hello-world、simple-token 和 basic-nft 学习",
+    "了解合约开发的基本流程"
+  ],
+  "examples": [
+    "wes contract deploy contract.wasm --function Initialize",
+    "wes contract call <contract_address> --function RegisterUser",
+    "wes contract call <contract_address> --function GetContractInfo"
+  ],
+  "codePreview": "export class StarterContract extends Contract {\n  onCall(functionName: string, params: Uint8Array): ErrorCode {\n    if (functionName === 'RegisterUser') {\n      return this.registerUser(params);\n    }\n    return ErrorCode.ERROR_NOT_FOUND;\n  }\n}",
+  "sourcePath": "contract.ts",
+  "version": "1.0.0",
+  "author": "WES Contract SDK Team",
+  "license": "MIT",
+  "language": "typescript",
+  "level": "learning",
+  "helpers": [
+    "token",
+    "governance"
+  ],
+  "methods": [
+    {
+      "name": "Initialize",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "初始化合约",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "RegisterUser",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "userInfo",
+          "type": "string",
+          "required": true,
+          "description": "用户信息（JSON格式）"
+        }
+      ],
+      "returnType": "number",
+      "description": "用户注册",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "GetUserInfo",
+      "type": "read",
+      "parameters": [
+        {
+          "name": "address",
+          "type": "address",
+          "required": false,
+          "description": "用户地址（可选，默认查询调用者）"
+        }
+      ],
+      "returnType": "string",
+      "description": "获取用户信息",
+      "isReferenceOnly": true
+    },
+    {
+      "name": "TransferAsset",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "to",
+          "type": "address",
+          "required": true,
+          "description": "接收者地址"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "资产数量"
+        }
+      ],
+      "returnType": "number",
+      "description": "转移资产",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "GetAssetBalance",
+      "type": "read",
+      "parameters": [
+        {
+          "name": "address",
+          "type": "address",
+          "required": false,
+          "description": "地址（可选，默认查询调用者）"
+        }
+      ],
+      "returnType": "string",
+      "description": "查询资产余额",
+      "isReferenceOnly": true
+    },
+    {
+      "name": "CreateProposal",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "proposalData",
+          "type": "string",
+          "required": true,
+          "description": "提案内容（JSON格式）"
+        }
+      ],
+      "returnType": "number",
+      "description": "创建提案",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Vote",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "proposalId",
+          "type": "string",
+          "required": true,
+          "description": "提案ID"
+        },
+        {
+          "name": "support",
+          "type": "boolean",
+          "required": true,
+          "description": "是否支持"
+        }
+      ],
+      "returnType": "number",
+      "description": "投票",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "LockAsset",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "锁定数量"
+        },
+        {
+          "name": "duration",
+          "type": "number",
+          "required": true,
+          "description": "锁定期限（秒）"
+        }
+      ],
+      "returnType": "number",
+      "description": "锁定资产",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "UnlockAsset",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "lockId",
+          "type": "string",
+          "required": true,
+          "description": "锁定ID"
+        }
+      ],
+      "returnType": "number",
+      "description": "解锁资产",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "PlayGame",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "gameData",
+          "type": "string",
+          "required": true,
+          "description": "游戏数据（JSON格式）"
+        }
+      ],
+      "returnType": "number",
+      "description": "游戏逻辑",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "GetGameStats",
+      "type": "read",
+      "parameters": [],
+      "returnType": "string",
+      "description": "获取游戏统计",
+      "isReferenceOnly": true
+    },
+    {
+      "name": "GetContractInfo",
+      "type": "read",
+      "parameters": [],
+      "returnType": "string",
+      "description": "获取合约信息",
+      "isReferenceOnly": true
+    },
+    {
+      "name": "GetContractStats",
+      "type": "read",
+      "parameters": [],
+      "returnType": "string",
+      "description": "获取合约统计",
+      "isReferenceOnly": true
+    },
+    {
+      "name": "PauseContract",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "暂停合约",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "ResumeContract",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "恢复合约",
+      "isReferenceOnly": false
+    }
+  ],
+  "sdkCompatibility": {
+    "js": ">=0.1.0-alpha <0.2.0"
+  },
+  "sinceSdk": {
+    "js": "0.1.0-alpha"
+  }
+}

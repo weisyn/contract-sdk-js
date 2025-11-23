@@ -1,0 +1,174 @@
+{
+  "id": "bond",
+  "name": "bond",
+  "category": "RWA",
+  "description": "bond 代币化合约，实现相关资产的代币化",
+  "tags": [
+    "standard",
+    "rwa",
+    "bond"
+  ],
+  "parameters": [],
+  "risks": [],
+  "prerequisites": [
+    "了解 TypeScript/AssemblyScript 基础语法",
+    "了解 WES 合约基本概念",
+    "了解 RWA 代币化的基本概念"
+  ],
+  "examples": [
+    "wes contract deploy contract.wasm --function Initialize"
+  ],
+  "codePreview": "const result = Token.mint(caller, totalSupply, tokenID);",
+  "sourcePath": "contract.ts",
+  "version": "1.0.0",
+  "author": "WES Contract SDK Team",
+  "license": "MIT",
+  "language": "typescript",
+  "level": "standard",
+  "helpers": [
+    "token",
+    "market"
+  ],
+  "methods": [
+    {
+      "name": "Initialize",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "初始化合约",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "TokenizeAsset",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "asset_id",
+          "type": "string",
+          "required": true,
+          "description": "资产ID"
+        },
+        {
+          "name": "total_supply",
+          "type": "number",
+          "required": true,
+          "description": "总供应量"
+        },
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "代币ID"
+        }
+      ],
+      "returnType": "number",
+      "description": "使用 ISPC 受控机制验证和代币化债券",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "TransferAsset",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "to",
+          "type": "address",
+          "required": true,
+          "description": "接收者地址"
+        },
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "代币ID"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "转移数量"
+        }
+      ],
+      "returnType": "number",
+      "description": "转移债券份额",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "EscrowAsset",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "buyer",
+          "type": "address",
+          "required": true,
+          "description": "买方地址"
+        },
+        {
+          "name": "seller",
+          "type": "address",
+          "required": true,
+          "description": "卖方地址"
+        },
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "代币ID"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "托管数量"
+        },
+        {
+          "name": "escrow_id",
+          "type": "string",
+          "required": true,
+          "description": "托管ID"
+        }
+      ],
+      "returnType": "number",
+      "description": "创建债券托管，适用于交易、质押",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "ReleaseYield",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "beneficiary",
+          "type": "address",
+          "required": true,
+          "description": "受益人地址"
+        },
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "代币ID"
+        },
+        {
+          "name": "total_amount",
+          "type": "number",
+          "required": true,
+          "description": "总释放金额"
+        },
+        {
+          "name": "vesting_id",
+          "type": "string",
+          "required": true,
+          "description": "释放计划ID"
+        }
+      ],
+      "returnType": "number",
+      "description": "创建分阶段利息释放计划",
+      "isReferenceOnly": false
+    }
+  ],
+  "sdkCompatibility": {
+    "js": ">=0.1.0-alpha <0.2.0"
+  },
+  "sinceSdk": {
+    "js": "0.1.0-alpha"
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "id": "tickets",
+  "name": "Utickets NFT",
+  "category": "NFT",
+  "description": "Utickets NFT合约，实现相关NFT的代币化",
+  "tags": [
+    "standard",
+    "nft",
+    "tickets"
+  ],
+  "parameters": [],
+  "risks": [],
+  "prerequisites": [
+    "了解 TypeScript/AssemblyScript 基础语法",
+    "了解 WES 合约基本概念",
+    "了解 NFT 的基本概念"
+  ],
+  "examples": [
+    "wes contract deploy contract.wasm --function Initialize",
+    "wes contract call <contract_address> --function MintNFT --params '{\"to\":\"...\",\"token_id\":\"tickets_001\"}'"
+  ],
+  "codePreview": "const result = NFT.mint(to, tokenID, metadata);",
+  "sourcePath": "contract.ts",
+  "version": "1.0.0",
+  "author": "WES Contract SDK Team",
+  "license": "MIT",
+  "language": "typescript",
+  "level": "standard",
+  "helpers": [
+    "nft"
+  ],
+  "methods": [
+    {
+      "name": "Initialize",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "初始化合约",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "MintNFT",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "to",
+          "type": "address",
+          "required": true,
+          "description": "接收者地址"
+        },
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "门票唯一标识"
+        },
+        {
+          "name": "ticket_name",
+          "type": "string",
+          "required": true,
+          "description": "门票名称"
+        },
+        {
+          "name": "event",
+          "type": "string",
+          "required": true,
+          "description": "活动名称"
+        }
+      ],
+      "returnType": "number",
+      "description": "铸造唯一的门票NFT",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "TransferNFT",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "to",
+          "type": "address",
+          "required": true,
+          "description": "接收者地址"
+        },
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "门票唯一标识"
+        }
+      ],
+      "returnType": "number",
+      "description": "转移门票所有权",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "QueryNFT",
+      "type": "read",
+      "parameters": [
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "门票唯一标识"
+        }
+      ],
+      "returnType": "string",
+      "description": "查询门票信息和所有者",
+      "isReferenceOnly": true
+    }
+  ],
+  "sdkCompatibility": {
+    "js": ">=0.1.0-alpha <0.2.0"
+  },
+  "sinceSdk": {
+    "js": "0.1.0-alpha"
+  }
+}

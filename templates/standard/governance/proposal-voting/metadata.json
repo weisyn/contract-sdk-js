@@ -1,0 +1,123 @@
+{
+  "id": "proposal-voting",
+  "name": "Proposal Voting",
+  "category": "Governance",
+  "description": "提案投票治理合约，实现提案创建、投票和结果统计功能",
+  "tags": [
+    "standard",
+    "governance",
+    "voting",
+    "proposal",
+    "dao"
+  ],
+  "parameters": [
+    {
+      "name": "proposal_id",
+      "type": "string",
+      "required": true,
+      "description": "提案ID"
+    },
+    {
+      "name": "proposal_data",
+      "type": "string",
+      "required": true,
+      "description": "提案内容（Propose）"
+    },
+    {
+      "name": "support",
+      "type": "boolean",
+      "required": true,
+      "description": "是否支持（Vote）"
+    },
+    {
+      "name": "threshold",
+      "type": "number",
+      "required": true,
+      "description": "通过阈值（VoteAndCount）"
+    }
+  ],
+  "risks": [
+    "需要实现提案创建权限检查",
+    "需要实现投票权限检查",
+    "需要实现重复投票检查",
+    "需要实现投票时间窗口检查"
+  ],
+  "prerequisites": [
+    "了解 TypeScript/AssemblyScript 基础语法",
+    "了解 WES 合约基本概念",
+    "了解治理和投票的基本概念"
+  ],
+  "examples": [
+    "wes contract deploy contract.wasm --function Initialize",
+    "wes contract call <contract_address> --function Propose --params '{\"proposal_id\":\"proposal_123\",\"proposal_data\":\"Increase token supply\"}'",
+    "wes contract call <contract_address> --function Vote --params '{\"proposal_id\":\"proposal_123\",\"support\":true}'"
+  ],
+  "codePreview": "const result = Governance.propose(caller, proposalID, proposalData);\nif (result !== ErrorCode.SUCCESS) {\n  return result;\n}",
+  "sourcePath": "contract.ts",
+  "version": "1.0.0",
+  "author": "WES Contract SDK Team",
+  "license": "MIT",
+  "language": "typescript",
+  "level": "standard",
+  "helpers": [
+    "governance"
+  ],
+  "methods": [
+    {
+      "name": "Initialize",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "初始化合约",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Propose",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "proposal_id",
+          "type": "string",
+          "required": true,
+          "description": "提案ID"
+        },
+        {
+          "name": "proposal_data",
+          "type": "string",
+          "required": true,
+          "description": "提案内容"
+        }
+      ],
+      "returnType": "number",
+      "description": "创建治理提案，自动处理状态输出和事件发出",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Vote",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "proposal_id",
+          "type": "string",
+          "required": true,
+          "description": "提案ID"
+        },
+        {
+          "name": "support",
+          "type": "boolean",
+          "required": true,
+          "description": "是否支持提案"
+        }
+      ],
+      "returnType": "number",
+      "description": "对提案进行投票，支持支持/反对两种方式",
+      "isReferenceOnly": false
+    }
+  ],
+  "sdkCompatibility": {
+    "js": ">=0.1.0-alpha <0.2.0"
+  },
+  "sinceSdk": {
+    "js": "0.1.0-alpha"
+  }
+}

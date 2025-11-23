@@ -1,0 +1,124 @@
+{
+  "id": "collectibles",
+  "name": "Collectibles NFT",
+  "category": "NFT",
+  "description": "收藏品NFT合约，实现卡牌、头像、限量版收藏品等的代币化",
+  "tags": [
+    "standard",
+    "nft",
+    "collectibles",
+    "cards"
+  ],
+  "parameters": [],
+  "risks": [],
+  "prerequisites": [
+    "了解 TypeScript/AssemblyScript 基础语法",
+    "了解 WES 合约基本概念",
+    "了解 NFT 的基本概念"
+  ],
+  "examples": [
+    "wes contract deploy contract.wasm --function Initialize",
+    "wes contract call <contract_address> --function MintNFT --params '{\"to\":\"...\",\"token_id\":\"card_001\",\"series\":\"Series1\",\"rarity\":\"rare\"}'"
+  ],
+  "codePreview": "const result = NFT.mint(to, tokenID, metadata);\nif (result !== ErrorCode.SUCCESS) {\n  return result;\n}",
+  "sourcePath": "contract.ts",
+  "version": "1.0.0",
+  "author": "WES Contract SDK Team",
+  "license": "MIT",
+  "language": "typescript",
+  "level": "standard",
+  "helpers": [
+    "nft"
+  ],
+  "methods": [
+    {
+      "name": "Initialize",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "初始化合约",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "MintNFT",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "to",
+          "type": "address",
+          "required": true,
+          "description": "接收者地址"
+        },
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "NFT唯一标识"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "description": "收藏品名称"
+        },
+        {
+          "name": "series",
+          "type": "string",
+          "required": false,
+          "description": "系列名称"
+        },
+        {
+          "name": "rarity",
+          "type": "string",
+          "required": false,
+          "description": "稀有度"
+        }
+      ],
+      "returnType": "number",
+      "description": "铸造唯一的收藏品NFT，包含元数据（系列、稀有度等）",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "TransferNFT",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "to",
+          "type": "address",
+          "required": true,
+          "description": "接收者地址"
+        },
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "NFT唯一标识"
+        }
+      ],
+      "returnType": "number",
+      "description": "转移NFT所有权",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "QueryNFT",
+      "type": "read",
+      "parameters": [
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "NFT唯一标识"
+        }
+      ],
+      "returnType": "string",
+      "description": "查询NFT的所有者信息",
+      "isReferenceOnly": true
+    }
+  ],
+  "sdkCompatibility": {
+    "js": ">=0.1.0-alpha <0.2.0"
+  },
+  "sinceSdk": {
+    "js": "0.1.0-alpha"
+  }
+}

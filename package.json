@@ -1,0 +1,93 @@
+{
+  "name": "@weisyn/contract-sdk-js",
+  "version": "0.1.0-alpha",
+  "description": "WES 智能合约 SDK for TypeScript/AssemblyScript - 支持使用 TS/AS 编写合约并编译为 WASM",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE",
+    "asconfig.json"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "build:watch": "rollup -c --watch",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:contract": "asc templates/learning/hello-world/contract.ts --target release --outFile build/hello-world.wasm",
+    "build:contract:debug": "asc templates/learning/hello-world/contract.ts --target debug --outFile build/hello-world.wasm",
+    "build:templates": "bash scripts/build-all-templates.sh release",
+    "build:templates:debug": "bash scripts/build-all-templates.sh debug",
+    "build:template": "bash scripts/build-template.sh",
+    "generate:abi": "bash scripts/generate-all-abi.sh",
+    "generate:abi:template": "bash scripts/generate-abi.sh",
+    "merge:abi": "bash scripts/merge-all-abi-to-metadata.sh",
+    "merge:abi:template": "npx ts-node --esm tools/merge-abi-to-metadata.ts",
+    "generate:abi:full": "npm run generate:abi && npm run merge:abi",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest tests/integration",
+    "compile:verify": "asc --version && echo 'AssemblyScript compiler available'",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "check": "npm run lint && npm run format:check && npm run test:unit",
+    "prepack": "npm run check",
+    "prepublishOnly": "npm run build && npm run build:types"
+  },
+  "keywords": [
+    "wes",
+    "blockchain",
+    "contract",
+    "sdk",
+    "assemblyscript",
+    "typescript",
+    "wasm",
+    "smart-contract"
+  ],
+  "author": "WES Team",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/weisyn/contract-sdk-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/weisyn/contract-sdk-js/issues"
+  },
+  "homepage": "https://github.com/weisyn/contract-sdk-js#readme",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@assemblyscript/loader": "^0.28.9",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "assemblyscript": "^0.27.37",
+    "eslint": "^8.54.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.1.0",
+    "rollup": "^4.5.0",
+    "ts-jest": "^29.4.5",
+    "tslib": "^2.8.1",
+    "typescript": "^5.3.0"
+  },
+  "peerDependencies": {
+    "assemblyscript": ">=0.27.0",
+    "typescript": ">=5.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  }
+}

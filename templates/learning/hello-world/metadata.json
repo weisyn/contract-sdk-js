@@ -1,0 +1,54 @@
+{
+  "id": "hello-world",
+  "name": "Hello World",
+  "category": "Learning",
+  "description": "最简单的 WES 智能合约示例，展示 SDK 的基本用法",
+  "tags": [
+    "learning",
+    "beginner",
+    "hello-world",
+    "basic"
+  ],
+  "parameters": [],
+  "risks": [],
+  "prerequisites": [
+    "了解 TypeScript/AssemblyScript 基础语法",
+    "了解 WES 合约基本概念"
+  ],
+  "examples": [
+    "wes contract deploy contract.wasm --function Initialize",
+    "wes contract call <contract_address> --function SayHello"
+  ],
+  "codePreview": "export function SayHello(): u32 {\n  const caller = Context.getCaller();\n  const message = `Hello, ${caller}!`;\n  HostABI.emitEvent(message);\n  return ErrorCode.SUCCESS;\n}",
+  "sourcePath": "contract.ts",
+  "version": "1.0.0",
+  "author": "WES Contract SDK Team",
+  "license": "MIT",
+  "language": "typescript",
+  "level": "learning",
+  "helpers": [],
+  "methods": [
+    {
+      "name": "Initialize",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "初始化合约",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "SayHello",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "问候调用者，返回个性化消息",
+      "isReferenceOnly": false
+    }
+  ],
+  "sdkCompatibility": {
+    "js": ">=0.1.0-alpha <0.2.0"
+  },
+  "sinceSdk": {
+    "js": "0.1.0-alpha"
+  }
+}

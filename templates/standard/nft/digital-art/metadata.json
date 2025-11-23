@@ -1,0 +1,130 @@
+{
+  "id": "digital-art",
+  "name": "Digital Art NFT",
+  "category": "NFT",
+  "description": "数字艺术NFT合约，实现数字艺术品的代币化",
+  "tags": [
+    "standard",
+    "nft",
+    "digital-art",
+    "artwork"
+  ],
+  "parameters": [],
+  "risks": [],
+  "prerequisites": [
+    "了解 TypeScript/AssemblyScript 基础语法",
+    "了解 WES 合约基本概念",
+    "了解 NFT 的基本概念"
+  ],
+  "examples": [
+    "wes contract deploy contract.wasm --function Initialize",
+    "wes contract call <contract_address> --function MintNFT --params '{\"to\":\"...\",\"token_id\":\"art_001\",\"name\":\"Sunset\",\"artist\":\"Alice\"}'"
+  ],
+  "codePreview": "const result = NFT.mint(to, tokenID, metadata);\nif (result !== ErrorCode.SUCCESS) {\n  return result;\n}",
+  "sourcePath": "contract.ts",
+  "version": "1.0.0",
+  "author": "WES Contract SDK Team",
+  "license": "MIT",
+  "language": "typescript",
+  "level": "standard",
+  "helpers": [
+    "nft"
+  ],
+  "methods": [
+    {
+      "name": "Initialize",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "初始化合约",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "MintNFT",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "to",
+          "type": "address",
+          "required": true,
+          "description": "接收者地址"
+        },
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "NFT唯一标识"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "description": "艺术品名称"
+        },
+        {
+          "name": "artist",
+          "type": "string",
+          "required": true,
+          "description": "艺术家名称"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": false,
+          "description": "艺术品描述"
+        },
+        {
+          "name": "image_url",
+          "type": "string",
+          "required": false,
+          "description": "艺术品图片URL"
+        }
+      ],
+      "returnType": "number",
+      "description": "铸造唯一的数字艺术NFT，包含元数据",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "TransferNFT",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "to",
+          "type": "address",
+          "required": true,
+          "description": "接收者地址"
+        },
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "NFT唯一标识"
+        }
+      ],
+      "returnType": "number",
+      "description": "转移NFT所有权",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "QueryNFT",
+      "type": "read",
+      "parameters": [
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "NFT唯一标识"
+        }
+      ],
+      "returnType": "string",
+      "description": "查询NFT的所有者信息",
+      "isReferenceOnly": true
+    }
+  ],
+  "sdkCompatibility": {
+    "js": ">=0.1.0-alpha <0.2.0"
+  },
+  "sinceSdk": {
+    "js": "0.1.0-alpha"
+  }
+}

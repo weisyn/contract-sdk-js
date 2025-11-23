@@ -1,0 +1,151 @@
+{
+  "id": "basic-staking",
+  "name": "Basic Staking",
+  "category": "Staking",
+  "description": "基础质押合约，实现代币质押、解质押、委托和取消委托功能",
+  "tags": [
+    "standard",
+    "staking",
+    "delegation",
+    "validator"
+  ],
+  "parameters": [
+    {
+      "name": "validator",
+      "type": "address",
+      "required": true,
+      "description": "验证者地址"
+    },
+    {
+      "name": "amount",
+      "type": "number",
+      "required": true,
+      "description": "质押/解质押/委托数量"
+    }
+  ],
+  "risks": [
+    "需要实现验证者有效性检查",
+    "需要实现最小质押数量检查",
+    "需要实现锁定期和解质押冷却期检查"
+  ],
+  "prerequisites": [
+    "了解 TypeScript/AssemblyScript 基础语法",
+    "了解 WES 合约基本概念",
+    "了解质押和委托的基本概念"
+  ],
+  "examples": [
+    "wes contract deploy contract.wasm --function Initialize",
+    "wes contract call <contract_address> --function Stake --params '{\"validator\":\"...\",\"amount\":10000}'",
+    "wes contract call <contract_address> --function Unstake --params '{\"validator\":\"...\",\"amount\":5000}'"
+  ],
+  "codePreview": "const result = Staking.stake(caller, validator, amount, tokenID);\nif (result !== ErrorCode.SUCCESS) {\n  return result;\n}",
+  "sourcePath": "contract.ts",
+  "version": "1.0.0",
+  "author": "WES Contract SDK Team",
+  "license": "MIT",
+  "language": "typescript",
+  "level": "standard",
+  "helpers": [
+    "staking"
+  ],
+  "methods": [
+    {
+      "name": "Initialize",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "初始化合约",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Stake",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "validator",
+          "type": "address",
+          "required": true,
+          "description": "验证者地址"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "质押数量"
+        }
+      ],
+      "returnType": "number",
+      "description": "代币质押，自动处理余额检查和交易构建",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Unstake",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "validator",
+          "type": "address",
+          "required": true,
+          "description": "验证者地址"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "解质押数量（0表示全部）"
+        }
+      ],
+      "returnType": "number",
+      "description": "解质押代币，支持部分或全部解质押",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Delegate",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "validator",
+          "type": "address",
+          "required": true,
+          "description": "验证者地址"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "委托数量"
+        }
+      ],
+      "returnType": "number",
+      "description": "将质押权委托给验证者",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Undelegate",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "validator",
+          "type": "address",
+          "required": true,
+          "description": "验证者地址"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "取消委托数量（0表示全部）"
+        }
+      ],
+      "returnType": "number",
+      "description": "取消委托，支持部分或全部取消委托",
+      "isReferenceOnly": false
+    }
+  ],
+  "sdkCompatibility": {
+    "js": ">=0.1.0-alpha <0.2.0"
+  },
+  "sinceSdk": {
+    "js": "0.1.0-alpha"
+  }
+}

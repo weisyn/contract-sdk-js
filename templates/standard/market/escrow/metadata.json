@@ -1,0 +1,115 @@
+{
+  "id": "escrow",
+  "name": "Escrow",
+  "category": "Market",
+  "description": "市场托管合约，实现代币托管和释放功能",
+  "tags": [
+    "standard",
+    "market",
+    "escrow",
+    "custody"
+  ],
+  "parameters": [],
+  "risks": [],
+  "prerequisites": [
+    "了解 TypeScript/AssemblyScript 基础语法",
+    "了解 WES 合约基本概念",
+    "了解市场交易的基本概念"
+  ],
+  "examples": [
+    "wes contract deploy contract.wasm --function Initialize",
+    "wes contract call <contract_address> --function Escrow --params '{\"buyer\":\"...\",\"seller\":\"...\",\"amount\":10000,\"escrow_id\":\"escrow_123\"}'"
+  ],
+  "codePreview": "const result = Market.escrow(buyer, seller, amount, tokenID, escrowID);\nif (result !== ErrorCode.SUCCESS) {\n  return result;\n}",
+  "sourcePath": "contract.ts",
+  "version": "1.0.0",
+  "author": "WES Contract SDK Team",
+  "license": "MIT",
+  "language": "typescript",
+  "level": "standard",
+  "helpers": [
+    "market"
+  ],
+  "methods": [
+    {
+      "name": "Initialize",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "初始化合约",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Escrow",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "buyer",
+          "type": "address",
+          "required": true,
+          "description": "买方地址"
+        },
+        {
+          "name": "seller",
+          "type": "address",
+          "required": true,
+          "description": "卖方地址"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "托管金额"
+        },
+        {
+          "name": "escrow_id",
+          "type": "string",
+          "required": true,
+          "description": "托管ID"
+        }
+      ],
+      "returnType": "number",
+      "description": "创建代币托管，自动处理余额检查和资产锁定",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Release",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "from",
+          "type": "address",
+          "required": true,
+          "description": "发送者地址"
+        },
+        {
+          "name": "beneficiary",
+          "type": "address",
+          "required": true,
+          "description": "受益人地址"
+        },
+        {
+          "name": "total_amount",
+          "type": "number",
+          "required": true,
+          "description": "总释放金额"
+        },
+        {
+          "name": "vesting_id",
+          "type": "string",
+          "required": true,
+          "description": "释放计划ID"
+        }
+      ],
+      "returnType": "number",
+      "description": "创建分阶段释放计划，适用于分红、租金分配等",
+      "isReferenceOnly": false
+    }
+  ],
+  "sdkCompatibility": {
+    "js": ">=0.1.0-alpha <0.2.0"
+  },
+  "sinceSdk": {
+    "js": "0.1.0-alpha"
+  }
+}

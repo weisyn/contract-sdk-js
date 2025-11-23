@@ -1,0 +1,129 @@
+{
+  "id": "gaming",
+  "name": "Ugaming NFT",
+  "category": "NFT",
+  "description": "Ugaming NFT合约，实现相关NFT的代币化",
+  "tags": [
+    "standard",
+    "nft",
+    "gaming"
+  ],
+  "parameters": [],
+  "risks": [],
+  "prerequisites": [
+    "了解 TypeScript/AssemblyScript 基础语法",
+    "了解 WES 合约基本概念",
+    "了解 NFT 的基本概念"
+  ],
+  "examples": [
+    "wes contract deploy contract.wasm --function Initialize",
+    "wes contract call <contract_address> --function MintNFT --params '{\"to\":\"...\",\"token_id\":\"gaming_001\"}'"
+  ],
+  "codePreview": "const result = NFT.mint(to, tokenID, metadata);",
+  "sourcePath": "contract.ts",
+  "version": "1.0.0",
+  "author": "WES Contract SDK Team",
+  "license": "MIT",
+  "language": "typescript",
+  "level": "standard",
+  "helpers": [
+    "nft"
+  ],
+  "methods": [
+    {
+      "name": "Initialize",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "初始化合约",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "MintNFT",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "to",
+          "type": "address",
+          "required": true,
+          "description": "接收者地址"
+        },
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "NFT唯一标识"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "description": "道具名称"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "required": false,
+          "description": "道具类型（weapon/armor/potion等）"
+        },
+        {
+          "name": "level",
+          "type": "number",
+          "required": false,
+          "description": "道具等级"
+        },
+        {
+          "name": "attributes",
+          "type": "string",
+          "required": false,
+          "description": "道具属性（strength:100,agility:50等）"
+        }
+      ],
+      "returnType": "number",
+      "description": "铸造唯一的游戏道具NFT，包含元数据（类型、属性、等级等）",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "TransferNFT",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "to",
+          "type": "address",
+          "required": true,
+          "description": "接收者地址"
+        },
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "NFT唯一标识"
+        }
+      ],
+      "returnType": "number",
+      "description": "转移NFT所有权",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "QueryNFT",
+      "type": "read",
+      "parameters": [
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "NFT唯一标识"
+        }
+      ],
+      "returnType": "string",
+      "description": "查询NFT的所有者信息",
+      "isReferenceOnly": true
+    }
+  ],
+  "sdkCompatibility": {
+    "js": ">=0.1.0-alpha <0.2.0"
+  },
+  "sinceSdk": {
+    "js": "0.1.0-alpha"
+  }
+}

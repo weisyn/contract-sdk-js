@@ -1,0 +1,149 @@
+{
+  "id": "dao",
+  "name": "DAO Governance",
+  "category": "Governance",
+  "description": "完整的 DAO（去中心化自治组织）治理合约实现，可用于生产环境",
+  "tags": [
+    "standard",
+    "governance",
+    "dao",
+    "production"
+  ],
+  "parameters": [
+    {
+      "name": "proposal_id",
+      "type": "string",
+      "required": true,
+      "description": "提案ID（CreateProposal/Vote）"
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "required": true,
+      "description": "提案标题（CreateProposal）"
+    },
+    {
+      "name": "support",
+      "type": "boolean",
+      "required": true,
+      "description": "是否支持（Vote/VoteAndCount）"
+    },
+    {
+      "name": "threshold",
+      "type": "number",
+      "required": true,
+      "description": "通过阈值（VoteAndCount）"
+    }
+  ],
+  "risks": [
+    "需要实现提案唯一性检查",
+    "需要实现投票权限检查",
+    "需要实现投票期限检查",
+    "需要实现提案执行功能"
+  ],
+  "prerequisites": [
+    "完成 Governance 学习模板",
+    "了解 DAO 治理机制",
+    "了解投票和提案流程"
+  ],
+  "examples": [
+    "wes contract call <contract_address> --function CreateProposal --params '{\"proposal_id\":\"proposal_001\",\"title\":\"Proposal Title\"}'",
+    "wes contract call <contract_address> --function Vote --params '{\"proposal_id\":\"proposal_001\",\"support\":true}'",
+    "wes contract call <contract_address> --function VoteAndCount --params '{\"proposal_id\":\"proposal_001\",\"support\":true,\"threshold\":50}'"
+  ],
+  "codePreview": "const result = Governance.propose(caller, proposalID, proposalData);\nif (result !== ErrorCode.SUCCESS) {\n  return result;\n}",
+  "sourcePath": "contract.ts",
+  "version": "1.0.0",
+  "author": "WES Contract SDK Team",
+  "license": "MIT",
+  "language": "typescript",
+  "level": "standard",
+  "helpers": [
+    "governance"
+  ],
+  "methods": [
+    {
+      "name": "Initialize",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "初始化合约",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "CreateProposal",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "proposal_id",
+          "type": "string",
+          "required": true,
+          "description": "提案ID"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "required": true,
+          "description": "提案标题"
+        }
+      ],
+      "returnType": "number",
+      "description": "创建新的治理提案",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Vote",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "proposal_id",
+          "type": "string",
+          "required": true,
+          "description": "提案ID"
+        },
+        {
+          "name": "support",
+          "type": "boolean",
+          "required": true,
+          "description": "是否支持提案"
+        }
+      ],
+      "returnType": "number",
+      "description": "对提案进行投票",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "VoteAndCount",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "proposal_id",
+          "type": "string",
+          "required": true,
+          "description": "提案ID"
+        },
+        {
+          "name": "support",
+          "type": "boolean",
+          "required": true,
+          "description": "是否支持提案"
+        },
+        {
+          "name": "threshold",
+          "type": "number",
+          "required": true,
+          "description": "通过阈值（百分比）"
+        }
+      ],
+      "returnType": "number",
+      "description": "投票并统计结果",
+      "isReferenceOnly": false
+    }
+  ],
+  "sdkCompatibility": {
+    "js": ">=0.1.0-alpha <0.2.0"
+  },
+  "sinceSdk": {
+    "js": "0.1.0-alpha"
+  }
+}

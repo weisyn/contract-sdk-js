@@ -1,0 +1,170 @@
+{
+  "id": "payment-token",
+  "name": "Payment Token",
+  "category": "Token",
+  "description": "支付代币合约，专门用于支付的代币，具有快速转账、低手续费等特点",
+  "tags": [
+    "standard",
+    "token",
+    "payment",
+    "transfer"
+  ],
+  "parameters": [],
+  "risks": [],
+  "prerequisites": [
+    "了解 TypeScript/AssemblyScript 基础语法",
+    "了解 WES 合约基本概念",
+    "了解代币的基本概念"
+  ],
+  "examples": [
+    "wes contract deploy contract.wasm --function Initialize",
+    "wes contract call <contract_address> --function Transfer --params '{\"to\":\"...\",\"amount\":100}'",
+    "wes contract call <contract_address> --function Mint --params '{\"to\":\"...\",\"amount\":1000}'"
+  ],
+  "codePreview": "const result = Token.transfer(caller, to, amount, tokenID);\nif (result !== ErrorCode.SUCCESS) {\n  return result;\n}",
+  "sourcePath": "contract.ts",
+  "version": "1.0.0",
+  "author": "WES Contract SDK Team",
+  "license": "MIT",
+  "language": "typescript",
+  "level": "standard",
+  "helpers": [
+    "token"
+  ],
+  "methods": [
+    {
+      "name": "Initialize",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "初始化合约",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Transfer",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "to",
+          "type": "address",
+          "required": true,
+          "description": "接收者地址"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "代币数量"
+        }
+      ],
+      "returnType": "number",
+      "description": "快速转账，适合日常支付",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Mint",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "to",
+          "type": "address",
+          "required": true,
+          "description": "接收者地址"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "铸造数量"
+        }
+      ],
+      "returnType": "number",
+      "description": "铸造新代币",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Burn",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "销毁数量"
+        }
+      ],
+      "returnType": "number",
+      "description": "销毁代币",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Approve",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "spender",
+          "type": "address",
+          "required": true,
+          "description": "被授权地址"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "授权数量"
+        }
+      ],
+      "returnType": "number",
+      "description": "授权其他地址使用代币",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Airdrop",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "recipients",
+          "type": "string",
+          "required": true,
+          "description": "接收者地址列表（JSON数组）"
+        },
+        {
+          "name": "amounts",
+          "type": "string",
+          "required": true,
+          "description": "代币数量列表（JSON数组）"
+        }
+      ],
+      "returnType": "number",
+      "description": "批量空投代币",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Freeze",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "target",
+          "type": "address",
+          "required": true,
+          "description": "目标地址"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "冻结数量"
+        }
+      ],
+      "returnType": "number",
+      "description": "冻结指定地址的代币",
+      "isReferenceOnly": false
+    }
+  ],
+  "sdkCompatibility": {
+    "js": ">=0.1.0-alpha <0.2.0"
+  },
+  "sinceSdk": {
+    "js": "0.1.0-alpha"
+  }
+}
