@@ -13,6 +13,88 @@
 - **Framework 层**：合约框架和交易构建
 - **Helpers 层**：业务语义 API
 
+### API 分层架构
+
+```mermaid
+graph TB
+    subgraph CONTRACT["合约代码"]
+        CALL["合约函数调用"]
+    end
+    
+    subgraph HELPERS["Helpers 层 (推荐)"]
+        TOKEN_API["Token.transfer()"]
+        NFT_API["NFT.mint()"]
+        STAKING_API["Staking.stake()"]
+    end
+    
+    subgraph FRAMEWORK["Framework 层"]
+        CONTRACT_BASE["Contract 基类"]
+        CONTEXT_API["Context API"]
+        STORAGE_API["Storage API"]
+    end
+    
+    subgraph RUNTIME["Runtime 层"]
+        HOSTABI_API["HostABI 绑定"]
+        MEMORY_API["Memory 管理"]
+    end
+    
+    subgraph WES["WES 节点"]
+        WASM_ABI["WASM ABI"]
+    end
+    
+    CALL --> HELPERS
+    CALL --> FRAMEWORK
+    HELPERS --> FRAMEWORK
+    FRAMEWORK --> RUNTIME
+    RUNTIME --> WES
+    
+    style CONTRACT fill:#E3F2FD
+    style HELPERS fill:#4CAF50,color:#fff
+    style FRAMEWORK fill:#2196F3,color:#fff
+    style RUNTIME fill:#FF9800,color:#fff
+    style WES fill:#9C27B0,color:#fff
+```
+
+### API 调用流程
+
+```mermaid
+sequenceDiagram
+    participant Contract as 合约函数
+    participant Helpers as Helpers API
+    participant Framework as Framework API
+    participant Runtime as Runtime API
+    participant HostABI as HostABI
+    participant Chain as WES 链
+    
+    Contract->>Framework: Context.getContractParams()
+    Framework-->>Contract: 返回参数
+    
+    Contract->>Framework: Context.getCaller()
+    Framework->>Runtime: HostABI.getCaller()
+    Runtime->>HostABI: host_get_caller()
+    HostABI-->>Runtime: 返回调用者地址
+    Runtime-->>Framework: 返回 Address
+    Framework-->>Contract: 返回 Address
+    
+    Contract->>Helpers: Token.transfer(...)
+    Helpers->>Framework: 构建交易
+    Framework->>Runtime: HostABI.appendStateOutput()
+    Runtime->>HostABI: host_append_state_output()
+    HostABI->>Chain: 执行交易
+    Chain-->>HostABI: 交易成功
+    HostABI-->>Runtime: 返回结果
+    Runtime-->>Framework: 返回成功
+    Framework-->>Helpers: 返回成功
+    Helpers-->>Contract: 返回 ErrorCode.SUCCESS
+    
+    Contract->>Framework: Context.emitEvent(...)
+    Framework->>Runtime: HostABI.emitEvent()
+    Runtime->>HostABI: host_emit_event()
+    HostABI-->>Runtime: 事件已发出
+    Runtime-->>Framework: 返回成功
+    Framework-->>Contract: 返回成功
+```
+
 ---
 
 ## Runtime 层

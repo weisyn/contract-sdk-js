@@ -13,7 +13,7 @@
 
 ## 🏗️ 模块总览
 
-目标代码结构（规划态）：
+### 目录结构
 
 ```
 src/
@@ -39,6 +39,52 @@ src/
 │   └── index.ts          # TS/AS 开发者的主要入口
 │
 └── index.ts              # JS 侧入口（导出供合约项目引用）
+```
+
+### 架构层次图
+
+```mermaid
+graph TB
+    subgraph CONTRACT["合约代码 (TypeScript/AS)"]
+        CODE["使用 @contract 装饰器<br/>继承 Contract 基类"]
+    end
+    
+    subgraph HELPERS["业务语义层 (helpers/)"]
+        TOKEN["Token"]
+        NFT["NFT"]
+        STAKING["Staking"]
+        GOV["Governance"]
+        MARKET["Market"]
+    end
+    
+    subgraph FRAMEWORK["框架层 (framework/)"]
+        CONTRACT_BASE["Contract 基类"]
+        CONTEXT["Context"]
+        STORAGE["Storage"]
+        RESULT["Result/ErrorCode"]
+    end
+    
+    subgraph RUNTIME["运行时层 (runtime/)"]
+        ABI["HostABI 绑定"]
+        ENV["环境函数"]
+        MEMORY["Memory 管理"]
+    end
+    
+    subgraph WES["WES 协议层"]
+        HOSTABI["HostABI 原语"]
+        WASM_ENGINE["WASM 引擎"]
+    end
+    
+    CODE --> HELPERS
+    HELPERS --> FRAMEWORK
+    FRAMEWORK --> RUNTIME
+    RUNTIME --> WES
+    
+    style CONTRACT fill:#E3F2FD
+    style HELPERS fill:#4CAF50,color:#fff
+    style FRAMEWORK fill:#2196F3,color:#fff
+    style RUNTIME fill:#FF9800,color:#fff
+    style WES fill:#9C27B0,color:#fff
 ```
 
 ---
@@ -143,6 +189,37 @@ export class TokenContract extends Contract {
 
 ## 🔗 依赖与边界
 
+### 依赖关系图
+
+```mermaid
+graph TB
+    subgraph CONTRACT_PROJECT["合约项目"]
+        CONTRACT_CODE["合约代码<br/>TypeScript/AS"]
+        AS_TOOLCHAIN["AssemblyScript<br/>工具链"]
+    end
+    
+    subgraph SDK["Contract SDK JS"]
+        HELPERS_MOD["helpers/"]
+        FRAMEWORK_MOD["framework/"]
+        RUNTIME_MOD["runtime/"]
+    end
+    
+    subgraph WES_NODE["WES 节点"]
+        HOSTABI_API["HostABI API<br/>17个原语"]
+        WASM_RUNTIME["WASM 运行时"]
+    end
+    
+    CONTRACT_CODE --> SDK
+    CONTRACT_CODE --> AS_TOOLCHAIN
+    AS_TOOLCHAIN -.编译.-> WASM_RUNTIME
+    SDK --> HOSTABI_API
+    
+    style CONTRACT_PROJECT fill:#E3F2FD
+    style SDK fill:#4CAF50,color:#fff
+    style WES_NODE fill:#9C27B0,color:#fff
+```
+
+**依赖说明**：
 - **不依赖 Go SDK**：只依赖 WES 节点公开的 WASM Host ABI。
 - **依赖 AssemblyScript 工具链**：
   - 编译目标：`wasm32-unknown-unknown` 或等效配置。

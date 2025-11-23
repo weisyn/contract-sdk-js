@@ -14,6 +14,23 @@
 
 ## 🚀 快速开始
 
+### 开发流程概览
+
+```mermaid
+graph LR
+    A[安装依赖<br/>AssemblyScript] --> B[创建项目<br/>npm init]
+    B --> C[编写合约<br/>TypeScript/AS]
+    C --> D[编译WASM<br/>asc compile]
+    D --> E[部署合约<br/>wes deploy]
+    E --> F[调用合约<br/>wes call]
+    F --> G[查看结果<br/>事件/日志]
+    
+    style A fill:#E3F2FD
+    style C fill:#C8E6C9
+    style D fill:#FFF9C4
+    style E fill:#F3E5F5
+```
+
 ### 1. 安装依赖
 
 ```bash
@@ -141,6 +158,52 @@ wes contract events --contract <合约地址> --event Transfer
 
 ## 📚 核心概念
 
+### SDK 分层架构
+
+合约开发者只需关注业务语义层，SDK 自动处理底层细节：
+
+```mermaid
+graph TB
+    subgraph DEV["👨‍💻 合约开发者"]
+        CODE["合约代码<br/>使用 helpers API"]
+    end
+    
+    subgraph HELPERS["业务语义层 (helpers/)"]
+        TOKEN["Token<br/>转账·铸造"]
+        NFT["NFT<br/>铸造·转移"]
+        STAKING["Staking<br/>质押·委托"]
+        GOV["Governance<br/>提案·投票"]
+        MARKET["Market<br/>托管·释放"]
+    end
+    
+    subgraph FRAMEWORK["框架层 (framework/)"]
+        CONTRACT["Contract 基类"]
+        CONTEXT["Context<br/>上下文"]
+        STORAGE["Storage<br/>状态管理"]
+    end
+    
+    subgraph RUNTIME["运行时层 (runtime/)"]
+        HOSTABI["HostABI 绑定"]
+        MEMORY["Memory 管理"]
+    end
+    
+    subgraph WES["WES 协议层"]
+        EUTXO["EUTXO 模型"]
+        ISPC["ISPC 执行"]
+    end
+    
+    DEV --> HELPERS
+    HELPERS --> FRAMEWORK
+    FRAMEWORK --> RUNTIME
+    RUNTIME --> WES
+    
+    style DEV fill:#E3F2FD
+    style HELPERS fill:#4CAF50,color:#fff
+    style FRAMEWORK fill:#2196F3,color:#fff
+    style RUNTIME fill:#FF9800,color:#fff
+    style WES fill:#9C27B0,color:#fff
+```
+
 ### 1. 业务语义优先
 
 **推荐使用 Helpers 层的业务语义接口**：
@@ -169,12 +232,32 @@ const result = Staking.stake(staker, validator, amount);
 
 所有交易构建都是确定性的：
 
+```mermaid
+graph LR
+    A[合约执行] --> B{确定性检查}
+    B -->|✅ 通过| C[生成交易]
+    B -->|❌ 失败| D[拒绝执行]
+    
+    C --> E[相同输入<br/>相同输出]
+    E --> F[相同 TxID]
+    
+    G[禁用项] --> H[系统时间<br/>使用区块时间戳]
+    G --> I[随机数<br/>使用确定性哈希]
+    G --> J[外部IO<br/>通过受控机制]
+    G --> K[网络访问<br/>通过受控机制]
+    
+    style B fill:#FFF9C4
+    style E fill:#C8E6C9
+    style G fill:#FFCDD2
+```
+
+**确定性要求**：
 - ✅ 禁用系统时间（使用区块时间戳）
 - ✅ 禁用随机数（使用确定性哈希）
 - ✅ 禁用外部IO（通过受控机制）
 - ✅ 禁用网络访问（通过受控机制）
 
-**验证**：100次重复执行产生相同TxID
+**验证方法**：100次重复执行产生相同TxID
 
 ### 3. 错误处理
 

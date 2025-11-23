@@ -1,25 +1,25 @@
-# WES 智能合约 TypeScript / AssemblyScript SDK
+# WES Smart Contract SDK for JavaScript/TypeScript
 
 <div align="center">
 
 <pre>
-╔═══════════════════════════════════════════════════════════╗
-║                                                           ║
-║   WES Contract SDK JS                                     ║
-║   让智能合约开发回归业务本质                                  ║
-║                                                           ║
-╚═══════════════════════════════════════════════════════════╝
+__          ________ _____  _______     ___   _ 
+\ \        / /  ____|_   _|/ ____\ \   / / \ | |
+ \ \  /\  / /| |__    | | | (___  \ \_/ /|  \| |
+  \ \/  \/ / |  __|   | |  \___ \  \   / | . ` |
+   \  /\  /  | |____ _| |_ ____) |  | |  | |\  |
+    \/  \/   |______|_____|_____/   |_|  |_| \_|
 </pre>
 
-**业务语义优先 • TypeScript/AssemblyScript • WASM 优化 • 企业级能力**
+**WES 区块链智能合约开发工具包 - JavaScript/TypeScript 版本**  
+**为智能合约开发者提供业务语义优先的合约开发能力**
 
 [![npm version](https://img.shields.io/npm/v/@weisyn/contract-sdk-js.svg)](https://www.npmjs.com/package/@weisyn/contract-sdk-js)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-blue.svg)](https://www.typescriptlang.org/)
 [![AssemblyScript](https://img.shields.io/badge/AssemblyScript-0.27+-blue.svg)](https://www.assemblyscript.org/)
-[![Status](https://img.shields.io/badge/Status-Alpha-orange.svg)]()
 
-[🚀 30秒上手](#-30秒上手) • [💡 核心能力](#-核心能力) • [📖 文档导航](#-文档导航)
+[🚀 快速开始](#-30秒上手) • [📚 文档中心](./docs/README.md) • [💡 核心能力](#-核心能力) • [🏗️ 架构概览](#️-架构概览)
 
 </div>
 
@@ -167,37 +167,125 @@ const data = External.callAPI(
 
 ---
 
-## 🏗️ SDK 架构
+## 🏗️ 架构概览
+
+> 📖 **完整架构文档**：详见 [架构设计文档](./docs/ARCHITECTURE.md) | [架构规划文档](./docs/ARCHITECTURE_PLAN.md)
+
+### 在 WES 7 层架构中的位置
+
+`contract-sdk-js` 位于 WES 系统的**应用层 & 开发者生态**中的 **SDK 工具链**，用于开发运行在 **ISPC 执行层**的智能合约：
+
+```mermaid
+graph TB
+    subgraph DEV_ECOSYSTEM["🎨 应用层 & 开发者生态"]
+        direction TB
+        subgraph SDK_LAYER["SDK 工具链"]
+            direction LR
+            CLIENT_SDK["Client SDK<br/>Go/JS/Python/Java<br/>📱 DApp·钱包·浏览器<br/>链外应用开发"]
+            CONTRACT_SDK["Contract SDK (WASM)<br/>TypeScript/AssemblyScript<br/>📜 智能合约开发<br/>⭐ contract-sdk-js<br/>链上合约开发"]
+            AI_SDK["AI SDK (ONNX)"]
+        end
+        subgraph END_USER_APPS["终端应用"]
+            direction LR
+            WALLET_APP["Wallet<br/>钱包应用"]
+            EXPLORER["Explorer<br/>区块浏览器"]
+            DAPP["DApp<br/>去中心化应用"]
+        end
+    end
+    
+    subgraph API_GATEWAY["🌐 API 网关层"]
+        direction LR
+        JSONRPC["JSON-RPC 2.0<br/>:8545"]
+        HTTP["HTTP REST<br/>/api/v1/*"]
+    end
+    
+    subgraph ISPC_LAYER["🔮 ISPC 执行层"]
+        direction LR
+        WASM_ENGINE["WASM 引擎<br/>合约执行环境"]
+        HOSTABI["HostABI<br/>17个原语"]
+    end
+    
+    subgraph BIZ_LAYER["💼 业务服务层"]
+        APP_SVC["App Service<br/>应用编排·生命周期"]
+    end
+    
+    WALLET_APP --> CLIENT_SDK
+    EXPLORER --> CLIENT_SDK
+    DAPP --> CLIENT_SDK
+    
+    CLIENT_SDK --> JSONRPC
+    CLIENT_SDK --> HTTP
+    
+    JSONRPC --> APP_SVC
+    HTTP --> APP_SVC
+    
+    CONTRACT_SDK -.编译为WASM.-> WASM_ENGINE
+    WASM_ENGINE --> HOSTABI
+    HOSTABI --> APP_SVC
+    
+    style CONTRACT_SDK fill:#81C784,color:#fff,stroke:#4CAF50,stroke-width:3px
+    style ISPC_LAYER fill:#9C27B0,color:#fff
+    style API_GATEWAY fill:#64B5F6,color:#fff
+    style BIZ_LAYER fill:#FFB74D,color:#333
+```
+
+> 📖 **完整 WES 架构**：详见 [WES 系统架构文档](https://github.com/weisyn/go-weisyn/blob/main/docs/system/architecture/1-STRUCTURE_VIEW.md#-系统分层架构)  
+> 📱 **Client SDK**：用于链外应用开发，详见 [Client SDK (JS)](https://github.com/weisyn/client-sdk-js)
+
+### SDK 内部分层架构
 
 SDK 采用分层架构，**合约开发者只需使用业务语义层**：
 
-```text
-┌─────────────────────────────────────────────────────────┐
-│  业务语义层（合约开发者使用）                                │
-│  helpers/                                               │
-│  ├─ Token.transfer()      → 转账                         │
-│  ├─ Token.mint()          → 铸造                         │
-│  ├─ NFT.mint()            → 铸造NFT                      │
-│  ├─ Staking.stake()       → 质押                         │
-│  ├─ Governance.vote()     → 投票                         │
-│  ├─ RWA.validateAndTokenize() → 资产代币化                │
-│  └─ External.callAPI()    → 外部API调用                  │
-└─────────────────────────────────────────────────────────┘
-         ↓ 内部实现（SDK 自动处理）
-┌─────────────────────────────────────────────────────────┐
-│  框架层（SDK 内部使用）                                    │
-│  framework/                                             │
-│  ├─ HostABI 封装                                        │
-│  ├─ 交易构建                                             │
-│  └─ 状态管理                                             │
-└─────────────────────────────────────────────────────────┘
-         ↓ 调用
-┌─────────────────────────────────────────────────────────┐
-│  WES 协议层（底层能力）                                    │
-│  - EUTXO 交易模型                                        │
-│  - 可验证计算（ISPC）                                     │
-│  - 统一资源管理（URES）                                   │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph CONTRACT_DEV["👨‍💻 合约开发者"]
+        direction LR
+        CONTRACT_CODE["合约代码<br/>使用 helpers API"]
+    end
+    
+    subgraph HELPERS_LAYER["业务语义层 (helpers/)"]
+        direction LR
+        TOKEN["Token<br/>转账·铸造·销毁"]
+        NFT["NFT<br/>铸造·转移"]
+        STAKING["Staking<br/>质押·委托"]
+        GOVERNANCE["Governance<br/>提案·投票"]
+        MARKET["Market<br/>托管·释放"]
+        RWA["RWA<br/>资产代币化"]
+        EXTERNAL["External<br/>外部API调用"]
+    end
+    
+    subgraph FRAMEWORK_LAYER["框架层 (framework/)"]
+        direction TB
+        CONTRACT["Contract 基类"]
+        CONTEXT["Context<br/>上下文"]
+        STORAGE["Storage<br/>状态管理"]
+        TX_BUILDER["TransactionBuilder<br/>交易构建"]
+    end
+    
+    subgraph RUNTIME_LAYER["运行时层 (runtime/)"]
+        direction TB
+        HOSTABI_WRAP["HostABI 绑定<br/>17个原语"]
+        MEMORY["Memory 管理"]
+        ENV["环境变量"]
+    end
+    
+    subgraph WES_PROTOCOL["WES 协议层"]
+        direction TB
+        EUTXO["EUTXO 交易模型"]
+        ISPC["可验证计算 (ISPC)"]
+        URES["统一资源管理 (URES)"]
+    end
+    
+    CONTRACT_DEV --> HELPERS_LAYER
+    HELPERS_LAYER --> FRAMEWORK_LAYER
+    FRAMEWORK_LAYER --> RUNTIME_LAYER
+    RUNTIME_LAYER --> WES_PROTOCOL
+    
+    style CONTRACT_DEV fill:#E3F2FD
+    style HELPERS_LAYER fill:#4CAF50,color:#fff
+    style FRAMEWORK_LAYER fill:#2196F3,color:#fff
+    style RUNTIME_LAYER fill:#FF9800,color:#fff
+    style WES_PROTOCOL fill:#9C27B0,color:#fff
 ```
 
 **关键原则**：
