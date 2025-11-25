@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/triple-slash-reference */
+/// <reference path="../as-compat.d.ts" />
 /**
  * Host ABI TS 友好封装
  *
@@ -22,6 +24,24 @@ import {
 import { findJSONField, extractJSONObject, parseUint64 } from "../framework/utils/json";
 import { decode as base64Decode, encode as base64Encode } from "../framework/utils/base64";
 /* eslint-enable @typescript-eslint/no-unused-vars */
+
+/**
+ * 批量创建资产输出的输入项
+ *
+ * 单独定义类型而不是使用内联对象类型，避免 AssemblyScript
+ * 在解析 `Array<{ ... }>` 这类语法时出现兼容性问题。
+ */
+export class BatchOutputItem {
+  recipient: Address;
+  amount: u64;
+  tokenID: string | null;
+
+  constructor(recipient: Address, amount: u64, tokenID: string | null) {
+    this.recipient = recipient;
+    this.amount = amount;
+    this.tokenID = tokenID;
+  }
+}
 
 /**
  * Host ABI 封装类
@@ -557,24 +577,6 @@ export class HostABI {
       lockingPtr,
       lockingLen
     );
-  }
-
-  /**
-   * 批量创建资产输出的输入项
-   *
-   * 单独定义类型而不是使用内联对象类型，避免 AssemblyScript
-   * 在解析 `Array<{ ... }>` 这类语法时出现兼容性问题。
-   */
-  export class BatchOutputItem {
-    recipient: Address;
-    amount: u64;
-    tokenID: string | null;
-
-    constructor(recipient: Address, amount: u64, tokenID: string | null) {
-      this.recipient = recipient;
-      this.amount = amount;
-      this.tokenID = tokenID;
-    }
   }
 
   /**

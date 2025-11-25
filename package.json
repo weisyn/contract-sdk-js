@@ -1,6 +1,6 @@
 {
   "name": "@weisyn/contract-sdk-js",
-  "version": "0.1.0-alpha",
+  "version": "0.1.1-alpha",
   "description": "WES 智能合约 SDK for TypeScript/AssemblyScript - 支持使用 TS/AS 编写合约并编译为 WASM",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

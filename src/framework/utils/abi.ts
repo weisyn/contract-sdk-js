@@ -73,46 +73,46 @@ export interface BuildPayloadOptions {
   /**
    * 是否包含调用者地址（from）
    */
-  includeFrom: boolean;
+  includeFrom?: boolean;
 
   /**
    * 调用者地址（如果 includeFrom 为 true）
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  from: any;
+  from?: any;
 
   /**
    * 是否包含接收者地址（to）
    */
-  includeTo: boolean;
+  includeTo?: boolean;
 
   /**
    * 接收者地址（如果 includeTo 为 true）
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  to: any;
+  to?: any;
 
   /**
    * 是否包含金额（amount）
    */
-  includeAmount: boolean;
+  includeAmount?: boolean;
 
   /**
    * 金额值（如果 includeAmount 为 true）
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  amount: any;
+  amount?: any;
 
   /**
    * 是否包含代币 ID（token_id）
    */
-  includeTokenId: boolean;
+  includeTokenId?: boolean;
 
   /**
    * 代币 ID（如果 includeTokenId 为 true）
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  tokenId: any;
+  tokenId?: any;
 }
 
 /**
