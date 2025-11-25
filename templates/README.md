@@ -109,7 +109,9 @@ asc contract.ts --target release --outFile contract.wasm
 ## ⚠️ 注意事项
 
 - `examples/` 目录已标记为 legacy，建议使用 `templates/` 中的模板
-- 模板中的导入路径可能需要根据你的项目结构调整
+- **模板导入路径**：所有模板统一使用 npm 包路径 `@weisyn/contract-sdk-js/as`，与 Go 模板的模块路径风格一致
+  - 模板代码本身只依赖对外公开的 SDK 标识，不依赖仓库相对路径
+  - 工作台/编译服务会自动处理包路径到 AssemblyScript `~lib/` 的映射
 - 建议先完成学习模板，再使用标准模板
 - **模板对齐状态**：详细的对齐状态和 Go/JS 对比请参考 [_dev/TEMPLATE_ALIGNMENT_STATUS.md](../_dev/TEMPLATE_ALIGNMENT_STATUS.md)
 

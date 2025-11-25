@@ -7,10 +7,8 @@
  *   asc contract.ts --target release --outFile contract.wasm
  */
 
-import { Contract, Context, ErrorCode } from '../../../src/framework';
-import { HostABI } from '../../../src/runtime';
-import { Governance } from '../../../src/helpers/governance';
-import { findJSONField, parseUint64 } from '../../../src/framework/utils/json';
+import { Contract, Context, ErrorCode, HostABI, Governance } from '@weisyn/contract-sdk-js/as';
+import { findJSONField, parseUint64 } from '@weisyn/contract-sdk-js/as';
 
 /**
  * DAO 治理合约

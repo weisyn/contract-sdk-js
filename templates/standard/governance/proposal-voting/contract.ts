@@ -27,12 +27,10 @@
  *   asc contract.ts --target release --outFile contract.wasm
  */
 
-import { Contract, Context, ErrorCode } from '../../../src/framework';
-import { HostABI } from '../../../src/runtime';
-import { Governance } from '../../../src/helpers/governance';
-import { findJSONField, parseUint64 } from '../../../src/framework/utils/json';
-import { ParsingUtils } from '../../../src/framework/utils/parsing';
-import { FormatUtils } from '../../../src/framework/utils/format';
+import { Contract, Context, ErrorCode, HostABI, Governance } from '@weisyn/contract-sdk-js/as';
+import { findJSONField, parseUint64 } from '@weisyn/contract-sdk-js/as';
+import { ParsingUtils } from '@weisyn/contract-sdk-js/as';
+import { FormatUtils } from '@weisyn/contract-sdk-js/as';
 
 /**
  * Governance Contract 提案投票治理合约

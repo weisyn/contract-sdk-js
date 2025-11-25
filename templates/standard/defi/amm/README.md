@@ -2,7 +2,7 @@
 
 **分类**: Advanced DeFi 示例  
 **难度**: ⭐⭐⭐⭐ 高级  
-**最后更新**: 2025-01-23
+**最后更新**: 2025-11-23
 
 ---
 
@@ -37,5 +37,5 @@ wes contract call --address {contract_addr} --function AddLiquidity --params '{"
 
 ---
 
-**最后更新**: 2025-01-23
+**最后更新**: 2025-11-23
 

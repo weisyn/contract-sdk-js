@@ -9,17 +9,26 @@
 
 /**
  * ABI 方法参数信息
+ *
+ * 注意：为了兼容 AssemblyScript，这里避免使用可选属性（?）和复杂联合类型。
+ * 在实际数据中，对应字段可能缺失或为 undefined，但运行时逻辑会做容错处理。
  */
 export interface ABIParameter {
   name: string;
   type: string;
-  required?: boolean;
-  description?: string;
+  /**
+   * 是否必需参数。未显式提供时视为必需（required !== false）。
+   */
+  required: boolean;
+  /**
+   * 参数描述信息，可为空字符串。
+   */
+  description: string;
   /**
    * 结构体字段定义（当 type 为 struct 或 object 时）
-   * 用于嵌套结构体的编码
+   * 用于嵌套结构体的编码；没有字段定义时可以为 null。
    */
-  structFields?: ABIParameter[];
+  structFields: ABIParameter[] | null;
 }
 
 /**
@@ -27,10 +36,20 @@ export interface ABIParameter {
  */
 export interface ABIMethod {
   name: string;
-  type: "read" | "write";
+  /**
+   * 方法类型：约定使用 "read" 或 "write" 字符串，
+   * 但在类型层面使用 string 以兼容 AssemblyScript。
+   */
+  type: string;
   parameters: ABIParameter[];
-  returnType?: string;
-  isReferenceOnly?: boolean;
+  /**
+   * 返回类型字符串；没有显式设置时使用空字符串。
+   */
+  returnType: string;
+  /**
+   * 是否只在 ABI 中声明、不实际导出实现。
+   */
+  isReferenceOnly: boolean;
 }
 
 /**
@@ -38,52 +57,62 @@ export interface ABIMethod {
  */
 export interface ABI {
   methods: ABIMethod[];
-  version?: string;
+  /**
+   * ABI 版本字符串，未提供时在规范化阶段会填充为 "1.0.0"。
+   */
+  version: string;
 }
 
 /**
  * JSON Payload 构建选项
+ *
+ * 为了兼容 AssemblyScript，这里不使用可选属性和联合类型，
+ * 而是使用宽泛的 any，并通过运行时判断字段是否存在。
  */
 export interface BuildPayloadOptions {
   /**
    * 是否包含调用者地址（from）
    */
-  includeFrom?: boolean;
+  includeFrom: boolean;
 
   /**
    * 调用者地址（如果 includeFrom 为 true）
    */
-  from?: string | Uint8Array;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  from: any;
 
   /**
    * 是否包含接收者地址（to）
    */
-  includeTo?: boolean;
+  includeTo: boolean;
 
   /**
    * 接收者地址（如果 includeTo 为 true）
    */
-  to?: string | Uint8Array;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  to: any;
 
   /**
    * 是否包含金额（amount）
    */
-  includeAmount?: boolean;
+  includeAmount: boolean;
 
   /**
    * 金额值（如果 includeAmount 为 true）
    */
-  amount?: string | number | bigint;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  amount: any;
 
   /**
    * 是否包含代币 ID（token_id）
    */
-  includeTokenId?: boolean;
+  includeTokenId: boolean;
 
   /**
    * 代币 ID（如果 includeTokenId 为 true）
    */
-  tokenId?: string | Uint8Array;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  tokenId: any;
 }
 
 /**
@@ -109,7 +138,10 @@ export function parseABI(abiJson: string): ABI {
  * @param data 任意格式的 ABI 数据
  * @returns 规范化的 ABI 对象
  */
-export function normalizeABI(data: any): ABI {
+export function normalizeABI(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: any
+): ABI {
   if (data.methods && Array.isArray(data.methods)) {
     return {
       methods: data.methods,
@@ -156,10 +188,11 @@ export function findMethod(abi: ABI, methodName: string): ABIMethod | null {
  */
 export function buildJSONPayload(
   methodInfo: ABIMethod | null,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   args: any[],
-  options: BuildPayloadOptions = {}
-): Record<string, any> {
-  const payload: Record<string, any> = {};
+  options: BuildPayloadOptions = {} as BuildPayloadOptions
+): Record<string, unknown> {
+  const payload: Record<string, unknown> = {};
 
   // 添加选项中的字段
   if (options.includeFrom && options.from) {
@@ -207,10 +240,11 @@ export function buildJSONPayload(
  * @returns 转换后的 JSON 值
  */
 export function convertValueToJSONType(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   type: string,
-  structFields?: ABIParameter[]
-): any {
+  structFields: ABIParameter[] | null = null
+): unknown {
   const normalizedType = type.toLowerCase();
 
   // 检查是否为结构体类型
@@ -275,7 +309,11 @@ function isStructType(type: string): boolean {
  * @param structFields 结构体字段定义（可选）
  * @returns JSON 对象
  */
-function convertStructToJSON(value: any, structFields?: ABIParameter[]): Record<string, any> {
+function convertStructToJSON(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any,
+  structFields: ABIParameter[] | null = null
+): Record<string, unknown> {
   // 如果值已经是对象，直接使用
   if (
     value &&
@@ -285,7 +323,7 @@ function convertStructToJSON(value: any, structFields?: ABIParameter[]): Record<
   ) {
     // 如果有结构体字段定义，递归转换每个字段
     if (structFields && structFields.length > 0) {
-      const result: Record<string, any> = {};
+      const result: Record<string, unknown> = {};
       structFields.forEach((field) => {
         if (field.name in value) {
           const fieldValue = value[field.name];
@@ -334,7 +372,12 @@ function convertStructToJSON(value: any, structFields?: ABIParameter[]): Record<
  * @param structFields 结构体字段定义（如果数组元素是结构体）
  * @returns JSON 数组
  */
-function convertArrayToJSON(value: any, arrayType: string, structFields?: ABIParameter[]): any[] {
+function convertArrayToJSON(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any,
+  arrayType: string,
+  structFields: ABIParameter[] | null = null
+): unknown[] {
   // 确保值是数组
   if (!Array.isArray(value)) {
     // 如果不是数组，尝试转换
@@ -368,7 +411,8 @@ function convertArrayToJSON(value: any, arrayType: string, structFields?: ABIPar
  * @param value 参数值
  * @returns 推断后的 JSON 值
  */
-export function inferJSONType(value: any): any {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function inferJSONType(value: any): unknown {
   if (typeof value === "number" || typeof value === "bigint") {
     return value.toString();
   }
@@ -395,7 +439,8 @@ export function inferJSONType(value: any): any {
  * @param address 地址（字符串或字节数组）
  * @returns 地址字符串
  */
-export function convertAddress(address: string | Uint8Array): string {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function convertAddress(address: any): string {
   if (typeof address === "string") {
     return address;
   }
@@ -408,7 +453,8 @@ export function convertAddress(address: string | Uint8Array): string {
  * @param amount 金额（数字、字符串或 BigInt）
  * @returns 金额字符串
  */
-export function convertAmount(amount: string | number | bigint): string {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function convertAmount(amount: any): string {
   if (typeof amount === "bigint") {
     return amount.toString();
   }
@@ -421,7 +467,8 @@ export function convertAmount(amount: string | number | bigint): string {
  * @param tokenId 代币 ID（字符串或字节数组）
  * @returns 代币 ID 字符串
  */
-export function convertTokenId(tokenId: string | Uint8Array): string {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function convertTokenId(tokenId: any): string {
   if (typeof tokenId === "string") {
     return tokenId;
   }
@@ -434,7 +481,8 @@ export function convertTokenId(tokenId: string | Uint8Array): string {
  * @param bytes 字节数组
  * @returns 十六进制字符串（不带 0x 前缀）
  */
-export function convertBytes(bytes: string | Uint8Array): string {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function convertBytes(bytes: any): string {
   if (typeof bytes === "string") {
     // 如果已经是字符串，移除 0x 前缀（如果有）
     return bytes.startsWith("0x") ? bytes.slice(2) : bytes;

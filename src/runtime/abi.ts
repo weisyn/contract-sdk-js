@@ -560,13 +560,29 @@ export class HostABI {
   }
 
   /**
+   * 批量创建资产输出的输入项
+   *
+   * 单独定义类型而不是使用内联对象类型，避免 AssemblyScript
+   * 在解析 `Array<{ ... }>` 这类语法时出现兼容性问题。
+   */
+  export class BatchOutputItem {
+    recipient: Address;
+    amount: u64;
+    tokenID: string | null;
+
+    constructor(recipient: Address, amount: u64, tokenID: string | null) {
+      this.recipient = recipient;
+      this.amount = amount;
+      this.tokenID = tokenID;
+    }
+  }
+
+  /**
    * 批量创建资产输出（简化版）
    * @param items 输出项列表，每个项包含 recipient、amount、tokenID
    * @returns 成功创建的输出数量，失败返回 0xFFFFFFFF
    */
-  static batchCreateOutputsSimple(
-    items: Array<{ recipient: Address; amount: u64; tokenID: string | null }>
-  ): u32 {
+  static batchCreateOutputsSimple(items: Array<BatchOutputItem>): u32 {
     if (items.length === 0) {
       return 0xffffffff;
     }

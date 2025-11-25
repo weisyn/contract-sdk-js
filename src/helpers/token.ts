@@ -7,7 +7,7 @@
  * 参考: contract-sdk-go/helpers/token/
  */
 
-import { HostABI } from "../runtime/abi";
+import { HostABI, BatchOutputItem } from "../runtime/abi";
 import { Context } from "../framework/context";
 import { TransactionBuilder } from "../framework/transaction";
 import { ErrorCode, Address, Amount, TokenID, Hash } from "../framework/types";
@@ -281,13 +281,9 @@ export class Token {
     }
 
     // 4. 构建批量输出项
-    const items = new Array<{ recipient: Address; amount: u64; tokenID: string | null }>();
+    const items = new Array<BatchOutputItem>();
     for (let i = 0; i < recipients.length; i++) {
-      items.push({
-        recipient: recipients[i].address,
-        amount: recipients[i].amount,
-        tokenID: tokenID,
-      });
+      items.push(new BatchOutputItem(recipients[i].address, recipients[i].amount, tokenID));
     }
 
     // 5. 批量创建输出
@@ -322,13 +318,9 @@ export class Token {
     }
 
     // 2. 构建批量输出项
-    const items = new Array<{ recipient: Address; amount: u64; tokenID: string | null }>();
+    const items = new Array<BatchOutputItem>();
     for (let i = 0; i < recipients.length; i++) {
-      items.push({
-        recipient: recipients[i].address,
-        amount: recipients[i].amount,
-        tokenID: tokenID,
-      });
+      items.push(new BatchOutputItem(recipients[i].address, recipients[i].amount, tokenID));
     }
 
     // 3. 批量创建输出

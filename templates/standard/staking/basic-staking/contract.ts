@@ -31,13 +31,20 @@
  *   asc contract.ts --target release --outFile contract.wasm
  */
 
-import { Contract, Context, ErrorCode } from '../../../src/framework';
-import { HostABI } from '../../../src/runtime';
-import { Staking } from '../../../src/helpers/staking';
-import { Address, Amount, TokenID } from '../../../src/framework/types';
-import { findJSONField, parseUint64 } from '../../../src/framework/utils/json';
-import { ParsingUtils } from '../../../src/framework/utils/parsing';
-import { FormatUtils } from '../../../src/framework/utils/format';
+import {
+  Contract,
+  Context,
+  ErrorCode,
+  HostABI,
+  Staking,
+  Address,
+  Amount,
+  TokenID,
+  findJSONField,
+  parseUint64,
+  ParsingUtils,
+  FormatUtils,
+} from '@weisyn/contract-sdk-js/as';
 
 /**
  * Staking Contract 基础质押合约

@@ -285,11 +285,12 @@ export class TransactionBuilder {
         }
         json += `,"metadata":{}`;
       } else if (out.kind === OUTPUT_TYPE_STATE) {
+        // 遵循 WES ABI 规范：weisyn.git/docs/components/core/ispc/abi-and-payload.md
         const stateIDBase64 = base64Encode(out.stateID!);
         json += `,"state_id":"${stateIDBase64}"`;
-        json += `,"version":${out.version!.toString()}`;
+        json += `,"state_version":${out.version!.toString()}`;
         const execHashBase64 = base64Encode(out.execHash!);
-        json += `,"exec_hash":"${execHashBase64}"`;
+        json += `,"execution_result_hash":"${execHashBase64}"`;
       } else if (out.kind === OUTPUT_TYPE_RESOURCE) {
         const resourceBase64 = base64Encode(out.resource!);
         json += `,"resource":"${resourceBase64}"`;

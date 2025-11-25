@@ -16,13 +16,11 @@
  *   asc contract.ts --target release --outFile contract.wasm
  */
 
-import { Contract, Context, ErrorCode } from '../../../src/framework';
-import { HostABI } from '../../../src/runtime';
-import { Market } from '../../../src/helpers/market';
-import { Address, Amount, TokenID } from '../../../src/framework/types';
-import { findJSONField, parseUint64 } from '../../../src/framework/utils/json';
-import { ParsingUtils } from '../../../src/framework/utils/parsing';
-import { FormatUtils } from '../../../src/framework/utils/format';
+import { Contract, Context, ErrorCode, HostABI, Market } from '@weisyn/contract-sdk-js/as';
+import { Address, Amount, TokenID } from '@weisyn/contract-sdk-js/as';
+import { findJSONField, parseUint64 } from '@weisyn/contract-sdk-js/as';
+import { ParsingUtils } from '@weisyn/contract-sdk-js/as';
+import { FormatUtils } from '@weisyn/contract-sdk-js/as';
 
 /**
  * Vesting Contract 分阶段释放合约

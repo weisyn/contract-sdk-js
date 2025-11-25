@@ -8,4 +8,3 @@ export * from "./hash";
 export * from "./address";
 export * from "./parsing";
 export * from "./format";
-export * from "./abi";

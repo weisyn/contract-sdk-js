@@ -5,7 +5,7 @@
  * 使用 FNV-1a 哈希算法（简化版，用于状态ID哈希计算）
  */
 
-import type { Hash } from "../types";
+import { Hash } from "../types";
 
 /**
  * 计算哈希值（对齐 Go SDK 的 ComputeHash）
