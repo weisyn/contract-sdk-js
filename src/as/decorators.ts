@@ -1,11 +1,11 @@
 /**
  * 装饰器
- *
+ * 
  * 提供 @contract, @view, @call 等装饰器
- *
+ * 
  * 注意：AssemblyScript 目前不支持装饰器，这些装饰器主要用于 TypeScript 开发时的标记
  * 实际编译到 AssemblyScript 时，装饰器会被忽略，需要通过其他方式实现（如代码生成或运行时注册）
- *
+ * 
  * 为了兼容 AssemblyScript，装饰器函数实现为空，仅作为类型标记使用
  */
 
@@ -47,3 +47,4 @@ export function call(_name?: string): MethodDecorator {
     // 空实现，仅用于类型检查
   } as MethodDecorator;
 }
+

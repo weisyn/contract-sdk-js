@@ -11,7 +11,8 @@
  * - 详细限制说明请参考 docs/ASSEMBLYSCRIPT_COMPATIBILITY.md
  */
 
-import { Contract, Context, ErrorCode, HostABI } from '@weisyn/contract-sdk-js/as';
+import { Contract, Context, ErrorCode } from '../../src/framework';
+import { HostABI } from '../../src/runtime';
 
 /**
  * Hello World 合约实例

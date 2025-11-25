@@ -1,25 +1,14 @@
 /**
  * 交易构建器
- *
+ * 
  * 提供链式 API 用于构建交易，支持 inputs/outputs/intents
  * 参考: contract-sdk-go/framework/internal/transaction.go
  */
 
-import * as env from "../runtime/env";
-import { allocateString, readBytes } from "../runtime/memory";
-import {
-  ErrorCode,
-  Address,
-  Amount,
-  TokenID,
-  Hash,
-  TransactionResult,
-  OutPoint,
-  InputDescriptor,
-  IntentDescriptor,
-  IntentType,
-} from "./types";
-import { encode as base64Encode } from "./utils/base64";
+import * as env from '../runtime/env';
+import { allocateString, readBytes } from '../runtime/memory';
+import { ErrorCode, Address, Amount, TokenID, Hash, TransactionResult, OutPoint, InputDescriptor, IntentDescriptor, IntentType } from './types';
+import { encode as base64Encode } from './utils/base64';
 
 // 输出类型常量（避免使用联合类型字符串）
 const OUTPUT_TYPE_ASSET: i32 = 0;
@@ -35,7 +24,7 @@ export class TransactionBuilder {
   private outputs: Array<OutputDescriptor> = [];
   private intents: Array<IntentDescriptor> = [];
   private finalized: bool = false;
-  private signMode: string = "defer_sign";
+  private signMode: string = 'defer_sign';
 
   /**
    * 开始构建交易
@@ -144,7 +133,13 @@ export class TransactionBuilder {
       return this;
     }
 
-    const intent = new IntentDescriptor(IntentType.TRANSFER, from, amount, to, tokenID);
+    const intent = new IntentDescriptor(
+      IntentType.TRANSFER,
+      from,
+      amount,
+      to,
+      tokenID
+    );
     this.intents.push(intent);
 
     return this;
@@ -156,12 +151,23 @@ export class TransactionBuilder {
    * @param amount 金额
    * @param validator 验证者地址
    */
-  stakeIntent(staker: Address, amount: Amount, validator: Address): TransactionBuilder {
+  stakeIntent(
+    staker: Address,
+    amount: Amount,
+    validator: Address
+  ): TransactionBuilder {
     if (this.finalized) {
       return this;
     }
 
-    const intent = new IntentDescriptor(IntentType.STAKE, staker, amount, null, null, validator);
+    const intent = new IntentDescriptor(
+      IntentType.STAKE,
+      staker,
+      amount,
+      null,
+      null,
+      validator
+    );
     this.intents.push(intent);
 
     return this;
@@ -204,12 +210,12 @@ export class TransactionBuilder {
     if (this.finalized) {
       return new TransactionResult(false, ErrorCode.ERROR_INVALID_STATE);
     }
-
+    
     this.finalized = true;
-
+    
     // 序列化 Draft JSON
     const draftJSON = this.serializeDraft();
-    if (draftJSON === "") {
+    if (draftJSON === '') {
       return new TransactionResult(false, ErrorCode.ERROR_EXECUTION_FAILED);
     }
 
@@ -229,9 +235,8 @@ export class TransactionBuilder {
 
     // 调用 host_build_transaction
     const result = env.hostBuildTransaction(draftPtr, draftLen, receiptPtr, receiptSize);
-    const resultCode = result as ErrorCode;
-    if (resultCode !== ErrorCode.SUCCESS) {
-      return new TransactionResult(false, resultCode);
+    if (result !== ErrorCode.SUCCESS) {
+      return new TransactionResult(false, result as ErrorCode);
     }
 
     // 读取 receipt JSON
@@ -267,17 +272,17 @@ export class TransactionBuilder {
     // 序列化 outputs
     for (let i = 0; i < this.outputs.length; i++) {
       if (i > 0) {
-        json += ",";
+        json += ',';
       }
       const out = this.outputs[i];
-
+      
       json += `{"type":"${this.getOutputTypeString(out.kind)}"`;
 
       if (out.kind === OUTPUT_TYPE_ASSET) {
         const toHex = this.addressToHex(out.to!);
         json += `,"owner":"${toHex}"`;
         json += `,"amount":"${out.amount!.toString()}"`;
-        if (out.tokenID !== null && out.tokenID !== "") {
+        if (out.tokenID !== null && out.tokenID !== '') {
           const tokenIDHex = this.stringToHex(out.tokenID);
           json += `,"token_id":"${tokenIDHex}"`;
         } else {
@@ -285,18 +290,17 @@ export class TransactionBuilder {
         }
         json += `,"metadata":{}`;
       } else if (out.kind === OUTPUT_TYPE_STATE) {
-        // 遵循 WES ABI 规范：weisyn.git/docs/components/core/ispc/abi-and-payload.md
         const stateIDBase64 = base64Encode(out.stateID!);
         json += `,"state_id":"${stateIDBase64}"`;
-        json += `,"state_version":${out.version!.toString()}`;
+        json += `,"version":${out.version!.toString()}`;
         const execHashBase64 = base64Encode(out.execHash!);
-        json += `,"execution_result_hash":"${execHashBase64}"`;
+        json += `,"exec_hash":"${execHashBase64}"`;
       } else if (out.kind === OUTPUT_TYPE_RESOURCE) {
         const resourceBase64 = base64Encode(out.resource!);
         json += `,"resource":"${resourceBase64}"`;
       }
 
-      json += "}";
+      json += '}';
     }
 
     json += `],"intents":[`;
@@ -304,10 +308,10 @@ export class TransactionBuilder {
     // 序列化 intents
     for (let i = 0; i < this.intents.length; i++) {
       if (i > 0) {
-        json += ",";
+        json += ',';
       }
       const intent = this.intents[i];
-
+      
       json += `{"type":"${this.getIntentTypeString(intent.intentType)}","params":{`;
 
       if (intent.intentType === IntentType.TRANSFER) {
@@ -315,7 +319,7 @@ export class TransactionBuilder {
         const toHex = this.addressToHex(intent.to!);
         json += `"from":"${fromHex}"`;
         json += `,"to":"${toHex}"`;
-        if (intent.tokenID !== null && intent.tokenID !== "") {
+        if (intent.tokenID !== null && intent.tokenID !== '') {
           const tokenIDHex = this.stringToHex(intent.tokenID);
           json += `,"token_id":"${tokenIDHex}"`;
         } else {
@@ -330,10 +334,10 @@ export class TransactionBuilder {
         json += `,"validator":"${validatorHex}"`;
       }
 
-      json += "}}";
+      json += '}}';
     }
 
-    json += "]}";
+    json += ']}';
 
     return json;
   }
@@ -342,30 +346,30 @@ export class TransactionBuilder {
    * 获取输出类型字符串
    */
   private getOutputTypeString(kind: i32): string {
-    if (kind === OUTPUT_TYPE_ASSET) return "asset";
-    if (kind === OUTPUT_TYPE_STATE) return "state";
-    if (kind === OUTPUT_TYPE_RESOURCE) return "resource";
-    return "asset";
+    if (kind === OUTPUT_TYPE_ASSET) return 'asset';
+    if (kind === OUTPUT_TYPE_STATE) return 'state';
+    if (kind === OUTPUT_TYPE_RESOURCE) return 'resource';
+    return 'asset';
   }
 
   /**
    * 获取意图类型字符串
    */
   private getIntentTypeString(intentType: IntentType): string {
-    if (intentType === IntentType.TRANSFER) return "transfer";
-    if (intentType === IntentType.STAKE) return "stake";
-    return "transfer";
+    if (intentType === IntentType.TRANSFER) return 'transfer';
+    if (intentType === IntentType.STAKE) return 'stake';
+    return 'transfer';
   }
 
   /**
    * 地址转十六进制字符串
    */
   private addressToHex(address: Address): string {
-    let hex = "";
+    let hex = '';
     for (let i = 0; i < address.length; i++) {
       const byte = address[i];
-      const high = (byte >> 4) & 0xf;
-      const low = byte & 0xf;
+      const high = (byte >> 4) & 0xF;
+      const low = byte & 0xF;
       hex += String.fromCharCode(high < 10 ? 48 + high : 87 + high);
       hex += String.fromCharCode(low < 10 ? 48 + low : 87 + low);
     }
@@ -377,11 +381,11 @@ export class TransactionBuilder {
    */
   private stringToHex(str: string): string {
     const bytes = String.UTF8.encode(str);
-    let hex = "";
+    let hex = '';
     for (let i = 0; i < bytes.byteLength; i++) {
       const byte = bytes[i];
-      const high = (byte >> 4) & 0xf;
-      const low = byte & 0xf;
+      const high = (byte >> 4) & 0xF;
+      const low = byte & 0xF;
       hex += String.fromCharCode(high < 10 ? 48 + high : 87 + high);
       hex += String.fromCharCode(low < 10 ? 48 + low : 87 + low);
     }
@@ -394,18 +398,11 @@ export class TransactionBuilder {
   private findJSONEnd(data: Uint8Array): u32 {
     // 从后往前查找最后一个 '}'
     for (let i = data.length - 1; i >= 0; i--) {
-      if (data[i] === 0x7d) {
-        // '}'
+      if (data[i] === 0x7D) { // '}'
         return i + 1;
       }
       // 跳过空白字符
-      if (
-        data[i] !== 0x20 &&
-        data[i] !== 0x09 &&
-        data[i] !== 0x0a &&
-        data[i] !== 0x0d &&
-        data[i] !== 0
-      ) {
+      if (data[i] !== 0x20 && data[i] !== 0x09 && data[i] !== 0x0A && data[i] !== 0x0D && data[i] !== 0) {
         break;
       }
     }
@@ -421,39 +418,34 @@ export class TransactionBuilder {
     if (errorIdx < 0) {
       return false;
     }
-
+    
     // 检查 error 字段的值
-    const valueStart = receiptJSON.indexOf(":", errorIdx);
+    const valueStart = receiptJSON.indexOf(':', errorIdx);
     if (valueStart < 0) {
       return false;
     }
-
+    
     // 跳过空白字符
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     let idx = valueStart + 1;
-    while (
-      idx < receiptJSON.length &&
-      (receiptJSON.charCodeAt(idx) === 0x20 || receiptJSON.charCodeAt(idx) === 0x09)
-    ) {
+    while (idx < receiptJSON.length && (receiptJSON.charCodeAt(idx) === 0x20 || receiptJSON.charCodeAt(idx) === 0x09)) {
       idx++;
     }
-
+    
     // 检查是否为 null 或空字符串
     if (idx < receiptJSON.length) {
       const char = receiptJSON.charCodeAt(idx);
-      if (char === 0x6e) {
-        // 'n' (null)
+      if (char === 0x6E) { // 'n' (null)
         return false;
       }
-      if (char === 0x22) {
-        // '"'
+      if (char === 0x22) { // '"'
         // 检查是否为空字符串
         if (idx + 1 < receiptJSON.length && receiptJSON.charCodeAt(idx + 1) === 0x22) {
           return false;
         }
       }
     }
-
+    
     return true;
   }
 }
@@ -462,18 +454,18 @@ export class TransactionBuilder {
  * 输出描述符
  */
 class OutputDescriptor {
-  kind: i32; // 输出类型
-  to: Address | null; // 资产输出接收者
+  kind: i32;                    // 输出类型
+  to: Address | null;           // 资产输出接收者
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-  amount: Amount | null; // 资产输出金额
-  tokenID: TokenID | null; // 资产输出代币ID
-  stateID: Uint8Array | null; // 状态输出ID
+  amount: Amount | null;        // 资产输出金额
+  tokenID: TokenID | null;      // 资产输出代币ID
+  stateID: Uint8Array | null;   // 状态输出ID
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-  version: u64 | null; // 状态版本
+  version: u64 | null;          // 状态版本
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-  execHash: Hash | null; // 执行哈希
-  resource: Uint8Array | null; // 资源数据
-  owner: Address | null; // 资源所有者
+  execHash: Hash | null;        // 执行哈希
+  resource: Uint8Array | null;  // 资源数据
+  owner: Address | null;         // 资源所有者
 
   constructor(kind: i32) {
     this.kind = kind;

@@ -16,11 +16,13 @@
  *   asc contract.ts --target release --outFile contract.wasm
  */
 
-import { Contract, Context, ErrorCode, HostABI, NFT } from '@weisyn/contract-sdk-js/as';
-import { Address, TokenID } from '@weisyn/contract-sdk-js/as';
-import { findJSONField } from '@weisyn/contract-sdk-js/as';
-import { ParsingUtils } from '@weisyn/contract-sdk-js/as';
-import { FormatUtils } from '@weisyn/contract-sdk-js/as';
+import { Contract, Context, ErrorCode } from '../../../src/framework';
+import { HostABI } from '../../../src/runtime';
+import { NFT } from '../../../src/helpers/nft';
+import { Address, TokenID } from '../../../src/framework/types';
+import { findJSONField } from '../../../src/framework/utils/json';
+import { ParsingUtils } from '../../../src/framework/utils/parsing';
+import { FormatUtils } from '../../../src/framework/utils/format';
 
 class CollectiblesNFTContract extends Contract {
   private collectionName = 'Collectibles';

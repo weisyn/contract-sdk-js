@@ -1,6 +1,6 @@
 /**
  * JSON 解析工具
- *
+ * 
  * 提供简单的 JSON 解析功能，用于解析合约参数
  * 注意：AssemblyScript 的 JSON 支持有限，这里提供基础实现
  */
@@ -19,22 +19,22 @@ export function parseString(json: string, key: string): string | null {
   if (keyIndex === -1) {
     return null;
   }
-
-  const colonIndex = json.indexOf(":", keyIndex);
+  
+  const colonIndex = json.indexOf(':', keyIndex);
   if (colonIndex === -1) {
     return null;
   }
-
+  
   const quoteStart = json.indexOf('"', colonIndex);
   if (quoteStart === -1) {
     return null;
   }
-
+  
   const quoteEnd = json.indexOf('"', quoteStart + 1);
   if (quoteEnd === -1) {
     return null;
   }
-
+  
   return json.substring(quoteStart + 1, quoteEnd);
 }
 
@@ -50,28 +50,29 @@ export function parseNumber(json: string, key: string): u64 | null {
   if (keyIndex === -1) {
     return null;
   }
-
-  const colonIndex = json.indexOf(":", keyIndex);
+  
+  const colonIndex = json.indexOf(':', keyIndex);
   if (colonIndex === -1) {
     return null;
   }
-
+  
   // 跳过空白字符
   let start = colonIndex + 1;
   while (start < json.length && (json.charCodeAt(start) === 32 || json.charCodeAt(start) === 9)) {
     start++;
   }
-
+  
   // 解析数字
   let end = start;
-  while (end < json.length && json.charCodeAt(end) >= 48 && json.charCodeAt(end) <= 57) {
+  while (end < json.length && 
+         (json.charCodeAt(end) >= 48 && json.charCodeAt(end) <= 57)) {
     end++;
   }
-
+  
   if (end === start) {
     return null;
   }
-
+  
   const numStr = json.substring(start, end);
   return U64.parseInt(numStr, 10);
 }
@@ -88,26 +89,26 @@ export function parseBoolean(json: string, key: string): bool | null {
   if (keyIndex === -1) {
     return null;
   }
-
-  const colonIndex = json.indexOf(":", keyIndex);
+  
+  const colonIndex = json.indexOf(':', keyIndex);
   if (colonIndex === -1) {
     return null;
   }
-
+  
   // 跳过空白字符
   let start = colonIndex + 1;
   while (start < json.length && (json.charCodeAt(start) === 32 || json.charCodeAt(start) === 9)) {
     start++;
   }
-
+  
   // 检查 true/false
-  if (json.substring(start, start + 4) === "true") {
+  if (json.substring(start, start + 4) === 'true') {
     return true;
   }
-  if (json.substring(start, start + 5) === "false") {
+  if (json.substring(start, start + 5) === 'false') {
     return false;
   }
-
+  
   return null;
 }
 
@@ -119,7 +120,7 @@ export function parseBoolean(json: string, key: string): bool | null {
  */
 export function findJSONField(jsonStr: string, key: string): string {
   const keyPattern = `"${key}":"`;
-
+  
   // 首先尝试匹配带引号的字符串值
   let startIdx = -1;
   for (let i = 0; i <= jsonStr.length - keyPattern.length; i++) {
@@ -128,20 +129,19 @@ export function findJSONField(jsonStr: string, key: string): string {
       break;
     }
   }
-
+  
   if (startIdx !== -1) {
     // 字符串值（带引号）
     let endIdx = startIdx;
-    while (endIdx < jsonStr.length && jsonStr.charCodeAt(endIdx) !== 34) {
-      // 34 = '"'
+    while (endIdx < jsonStr.length && jsonStr.charCodeAt(endIdx) !== 34) { // 34 = '"'
       endIdx++;
     }
-
+    
     if (endIdx > startIdx) {
       return jsonStr.substring(startIdx, endIdx);
     }
   }
-
+  
   // 尝试不带引号的数字值
   const keyPattern2 = `"${key}":`;
   startIdx = -1;
@@ -157,11 +157,11 @@ export function findJSONField(jsonStr: string, key: string): string {
       break;
     }
   }
-
+  
   if (startIdx === -1) {
-    return "";
+    return '';
   }
-
+  
   // 解析数字或字符串
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   let endIdx = startIdx;
@@ -174,21 +174,18 @@ export function findJSONField(jsonStr: string, key: string): string {
     }
   } else {
     // 数字值
-    while (
-      endIdx < jsonStr.length &&
-      jsonStr.charCodeAt(endIdx) >= 48 &&
-      jsonStr.charCodeAt(endIdx) <= 57
-    ) {
+    while (endIdx < jsonStr.length && 
+           jsonStr.charCodeAt(endIdx) >= 48 && jsonStr.charCodeAt(endIdx) <= 57) {
       endIdx++;
     }
   }
-
+  
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   if (endIdx > startIdx) {
     return jsonStr.substring(startIdx, endIdx);
   }
-
-  return "";
+  
+  return '';
 }
 
 /**
@@ -200,7 +197,7 @@ export function findJSONField(jsonStr: string, key: string): string {
 // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 export function extractJSONObject(jsonStr: string, key: string): string {
   const keyPattern = `"${key}":{`;
-
+  
   let startIdx = -1;
   for (let i = 0; i <= jsonStr.length - keyPattern.length; i++) {
     if (jsonStr.substring(i, i + keyPattern.length) === keyPattern) {
@@ -208,20 +205,18 @@ export function extractJSONObject(jsonStr: string, key: string): string {
       break;
     }
   }
-
+  
   if (startIdx === -1) {
-    return "";
+    return '';
   }
-
+  
   // 找到匹配的 '}'
   let braceCount = 0;
   let endIdx = startIdx;
   while (endIdx < jsonStr.length) {
-    if (jsonStr.charCodeAt(endIdx) === 123) {
-      // '{'
+    if (jsonStr.charCodeAt(endIdx) === 123) { // '{'
       braceCount++;
-    } else if (jsonStr.charCodeAt(endIdx) === 125) {
-      // '}'
+    } else if (jsonStr.charCodeAt(endIdx) === 125) { // '}'
       braceCount--;
       if (braceCount === 0) {
         endIdx++; // 包含 '}'
@@ -230,12 +225,12 @@ export function extractJSONObject(jsonStr: string, key: string): string {
     }
     endIdx++;
   }
-
+  
   if (endIdx > startIdx) {
     return jsonStr.substring(startIdx, endIdx);
   }
-
-  return "";
+  
+  return '';
 }
 
 /**
@@ -247,7 +242,7 @@ export function parseUint64(str: string): u64 {
   if (str.length === 0) {
     return 0;
   }
-
+  
   let result: u64 = 0;
   for (let i = 0; i < str.length; i++) {
     const charCode = str.charCodeAt(i);
@@ -257,7 +252,7 @@ export function parseUint64(str: string): u64 {
       break;
     }
   }
-
+  
   return result;
 }
 
@@ -267,23 +262,23 @@ export function parseUint64(str: string): u64 {
  * @returns JSON 字符串
  */
 export function stringify(obj: Map<string, string>): string {
-  let result = "{";
+  let result = '{';
   let first = true;
-
-  // 将迭代器转换为数组，避免在 MapIterator 上使用 length 和索引
-  const keys = Array.from(obj.keys());
+  
+  const keys = obj.keys();
   for (let i = 0; i < keys.length; i++) {
     if (!first) {
-      result += ",";
+      result += ',';
     }
     first = false;
-
+    
     const key = keys[i];
     const value = obj.get(key);
     result += `"${key}":"${value}"`;
   }
-
-  result += "}";
+  
+  result += '}';
   return result;
 }
 /* eslint-enable @typescript-eslint/no-redundant-type-constituents */
+

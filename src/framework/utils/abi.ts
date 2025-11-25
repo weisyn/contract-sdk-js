@@ -1,34 +1,25 @@
 /**
  * ABI JSON 解析和 JSON Payload 构建工具
- *
+ * 
  * 提供 ABI JSON 解析和合约调用参数编码功能
  * 用于将合约调用参数转换为 WES 节点期望的 JSON payload 格式
- *
+ * 
  * @module framework/utils/abi
  */
 
 /**
  * ABI 方法参数信息
- *
- * 注意：为了兼容 AssemblyScript，这里避免使用可选属性（?）和复杂联合类型。
- * 在实际数据中，对应字段可能缺失或为 undefined，但运行时逻辑会做容错处理。
  */
 export interface ABIParameter {
   name: string;
   type: string;
-  /**
-   * 是否必需参数。未显式提供时视为必需（required !== false）。
-   */
-  required: boolean;
-  /**
-   * 参数描述信息，可为空字符串。
-   */
-  description: string;
+  required?: boolean;
+  description?: string;
   /**
    * 结构体字段定义（当 type 为 struct 或 object 时）
-   * 用于嵌套结构体的编码；没有字段定义时可以为 null。
+   * 用于嵌套结构体的编码
    */
-  structFields: ABIParameter[] | null;
+  structFields?: ABIParameter[];
 }
 
 /**
@@ -36,20 +27,10 @@ export interface ABIParameter {
  */
 export interface ABIMethod {
   name: string;
-  /**
-   * 方法类型：约定使用 "read" 或 "write" 字符串，
-   * 但在类型层面使用 string 以兼容 AssemblyScript。
-   */
-  type: string;
+  type: 'read' | 'write';
   parameters: ABIParameter[];
-  /**
-   * 返回类型字符串；没有显式设置时使用空字符串。
-   */
-  returnType: string;
-  /**
-   * 是否只在 ABI 中声明、不实际导出实现。
-   */
-  isReferenceOnly: boolean;
+  returnType?: string;
+  isReferenceOnly?: boolean;
 }
 
 /**
@@ -57,67 +38,57 @@ export interface ABIMethod {
  */
 export interface ABI {
   methods: ABIMethod[];
-  /**
-   * ABI 版本字符串，未提供时在规范化阶段会填充为 "1.0.0"。
-   */
-  version: string;
+  version?: string;
 }
 
 /**
  * JSON Payload 构建选项
- *
- * 为了兼容 AssemblyScript，这里不使用可选属性和联合类型，
- * 而是使用宽泛的 any，并通过运行时判断字段是否存在。
  */
 export interface BuildPayloadOptions {
   /**
    * 是否包含调用者地址（from）
    */
-  includeFrom: boolean;
-
+  includeFrom?: boolean;
+  
   /**
    * 调用者地址（如果 includeFrom 为 true）
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  from: any;
-
+  from?: string | Uint8Array;
+  
   /**
    * 是否包含接收者地址（to）
    */
-  includeTo: boolean;
-
+  includeTo?: boolean;
+  
   /**
    * 接收者地址（如果 includeTo 为 true）
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  to: any;
-
+  to?: string | Uint8Array;
+  
   /**
    * 是否包含金额（amount）
    */
-  includeAmount: boolean;
-
+  includeAmount?: boolean;
+  
   /**
    * 金额值（如果 includeAmount 为 true）
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  amount: any;
-
+  amount?: string | number | bigint;
+  
   /**
    * 是否包含代币 ID（token_id）
    */
-  includeTokenId: boolean;
-
+  includeTokenId?: boolean;
+  
   /**
    * 代币 ID（如果 includeTokenId 为 true）
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  tokenId: any;
+  tokenId?: string | Uint8Array;
 }
 
 /**
  * 解析 ABI JSON 字符串
- *
+ * 
  * @param abiJson ABI JSON 字符串
  * @returns 解析后的 ABI 对象
  */
@@ -126,61 +97,56 @@ export function parseABI(abiJson: string): ABI {
     const parsed = JSON.parse(abiJson);
     return normalizeABI(parsed);
   } catch (error) {
-    throw new Error(
-      `Failed to parse ABI JSON: ${error instanceof Error ? error.message : String(error)}`
-    );
+    throw new Error(`Failed to parse ABI JSON: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
 /**
  * 规范化 ABI 格式
- *
+ * 
  * @param data 任意格式的 ABI 数据
  * @returns 规范化的 ABI 对象
  */
-export function normalizeABI(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any
-): ABI {
+export function normalizeABI(data: any): ABI {
   if (data.methods && Array.isArray(data.methods)) {
     return {
       methods: data.methods,
-      version: data.version || "1.0.0",
+      version: data.version || '1.0.0',
     };
   }
-
+  
   // 如果数据是方法数组，包装成 ABI 格式
   if (Array.isArray(data)) {
     return {
       methods: data,
-      version: "1.0.0",
+      version: '1.0.0',
     };
   }
-
+  
   // 其他格式尝试转换
   return {
     methods: [],
-    version: "1.0.0",
+    version: '1.0.0',
   };
 }
 
 /**
  * 从 ABI 中查找方法信息
- *
+ * 
  * @param abi ABI 对象
  * @param methodName 方法名
  * @returns 方法信息，如果未找到则返回 null
  */
 export function findMethod(abi: ABI, methodName: string): ABIMethod | null {
-  return abi.methods.find((m) => m.name === methodName) || null;
+  return abi.methods.find(m => m.name === methodName) || null;
 }
 
 /**
  * 构建 JSON Payload（用于 WES 合约调用）
- *
+ * 
  * 根据方法签名和参数类型，将参数值转换为 JSON 对象
  * WES 节点期望 JSON payload（Base64 编码），而非 Ethereum ABI 编码
- *
+ * 
  * @param methodInfo 方法信息（包含参数类型）
  * @param args 参数值数组
  * @param options 构建选项（可选）
@@ -188,25 +154,24 @@ export function findMethod(abi: ABI, methodName: string): ABIMethod | null {
  */
 export function buildJSONPayload(
   methodInfo: ABIMethod | null,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   args: any[],
-  options: BuildPayloadOptions = {} as BuildPayloadOptions
-): Record<string, unknown> {
-  const payload: Record<string, unknown> = {};
+  options: BuildPayloadOptions = {}
+): Record<string, any> {
+  const payload: Record<string, any> = {};
 
   // 添加选项中的字段
   if (options.includeFrom && options.from) {
     payload.from = convertAddress(options.from);
   }
-
+  
   if (options.includeTo && options.to) {
     payload.to = convertAddress(options.to);
   }
-
+  
   if (options.includeAmount && options.amount !== undefined) {
     payload.amount = convertAmount(options.amount);
   }
-
+  
   if (options.includeTokenId && options.tokenId !== undefined) {
     payload.token_id = convertTokenId(options.tokenId);
   }
@@ -218,7 +183,11 @@ export function buildJSONPayload(
       if (index < args.length) {
         const value = args[index];
         // 传递结构体字段定义（用于嵌套结构体）
-        payload[param.name] = convertValueToJSONType(value, param.type, param.structFields);
+        payload[param.name] = convertValueToJSONType(
+          value,
+          param.type,
+          param.structFields
+        );
       }
     });
   } else {
@@ -233,18 +202,17 @@ export function buildJSONPayload(
 
 /**
  * 将值转换为 JSON 类型（根据参数类型）
- *
+ * 
  * @param value 参数值
  * @param type 参数类型
  * @param structFields 结构体字段定义（可选，用于嵌套结构体）
  * @returns 转换后的 JSON 值
  */
 export function convertValueToJSONType(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   type: string,
-  structFields: ABIParameter[] | null = null
-): unknown {
+  structFields?: ABIParameter[]
+): any {
   const normalizedType = type.toLowerCase();
 
   // 检查是否为结构体类型
@@ -253,36 +221,36 @@ export function convertValueToJSONType(
   }
 
   // 检查是否为数组类型
-  if (normalizedType.endsWith("[]")) {
+  if (normalizedType.endsWith('[]')) {
     return convertArrayToJSON(value, normalizedType, structFields);
   }
 
   switch (normalizedType) {
-    case "address":
+    case 'address':
       // 地址：保持字符串格式（WES 使用 Base58 或 hex）
       return convertAddress(value);
-
-    case "number":
-    case "uint256":
-    case "int256":
-    case "u32":
-    case "u64":
-    case "i32":
-    case "i64":
+    
+    case 'number':
+    case 'uint256':
+    case 'int256':
+    case 'u32':
+    case 'u64':
+    case 'i32':
+    case 'i64':
       // 数字：转换为字符串（WES 使用字符串表示大数）
       return convertAmount(value);
-
-    case "bool":
-    case "boolean":
+    
+    case 'bool':
+    case 'boolean':
       // 布尔值：保持布尔类型
       return Boolean(value);
-
-    case "bytes":
-    case "bytes32":
+    
+    case 'bytes':
+    case 'bytes32':
       // 字节数组：转换为 hex 字符串
       return convertBytes(value);
-
-    case "string":
+    
+    case 'string':
     default:
       // 字符串：保持字符串类型
       return String(value);
@@ -295,40 +263,38 @@ export function convertValueToJSONType(
 function isStructType(type: string): boolean {
   const normalized = type.toLowerCase();
   return (
-    normalized === "struct" ||
-    normalized === "object" ||
-    normalized.startsWith("struct:") ||
-    normalized.startsWith("object:")
+    normalized === 'struct' ||
+    normalized === 'object' ||
+    normalized.startsWith('struct:') ||
+    normalized.startsWith('object:')
   );
 }
 
 /**
  * 将结构体转换为 JSON 对象
- *
+ * 
  * @param value 结构体值（对象、数组或字符串）
  * @param structFields 结构体字段定义（可选）
  * @returns JSON 对象
  */
 function convertStructToJSON(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
-  structFields: ABIParameter[] | null = null
-): Record<string, unknown> {
+  structFields?: ABIParameter[]
+): Record<string, any> {
   // 如果值已经是对象，直接使用
-  if (
-    value &&
-    typeof value === "object" &&
-    !Array.isArray(value) &&
-    !(value instanceof Uint8Array)
-  ) {
+  if (value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Uint8Array)) {
     // 如果有结构体字段定义，递归转换每个字段
     if (structFields && structFields.length > 0) {
-      const result: Record<string, unknown> = {};
-      structFields.forEach((field) => {
+      const result: Record<string, any> = {};
+      structFields.forEach(field => {
         if (field.name in value) {
           const fieldValue = value[field.name];
           // 递归转换字段值
-          result[field.name] = convertValueToJSONType(fieldValue, field.type, field.structFields);
+          result[field.name] = convertValueToJSONType(
+            fieldValue,
+            field.type,
+            field.structFields
+          );
         } else if (field.required !== false) {
           // 必需字段缺失，使用 undefined（调用方应处理）
           result[field.name] = undefined;
@@ -341,22 +307,22 @@ function convertStructToJSON(
   }
 
   // 如果是字符串，尝试解析为 JSON
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     try {
       const parsed = JSON.parse(value);
-      if (typeof parsed === "object" && !Array.isArray(parsed)) {
+      if (typeof parsed === 'object' && !Array.isArray(parsed)) {
         return convertStructToJSON(parsed, structFields);
       }
     } catch (error) {
       // 解析失败，返回空对象
-      console.warn("Failed to parse struct value as JSON:", error);
+      console.warn('Failed to parse struct value as JSON:', error);
     }
   }
 
   // 如果值不是对象，返回空对象（或抛出错误）
   if (structFields && structFields.length > 0) {
     // 有字段定义但值不是对象，返回空对象（调用方应处理）
-    console.warn("Struct value is not an object, returning empty object");
+    console.warn('Struct value is not an object, returning empty object');
     return {};
   }
 
@@ -366,22 +332,21 @@ function convertStructToJSON(
 
 /**
  * 将数组转换为 JSON 数组
- *
+ * 
  * @param value 数组值
  * @param arrayType 数组类型（如 "uint256[]", "struct:User[]"）
  * @param structFields 结构体字段定义（如果数组元素是结构体）
  * @returns JSON 数组
  */
 function convertArrayToJSON(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   arrayType: string,
-  structFields: ABIParameter[] | null = null
-): unknown[] {
+  structFields?: ABIParameter[]
+): any[] {
   // 确保值是数组
   if (!Array.isArray(value)) {
     // 如果不是数组，尝试转换
-    if (typeof value === "string") {
+    if (typeof value === 'string') {
       try {
         const parsed = JSON.parse(value);
         if (Array.isArray(parsed)) {
@@ -392,7 +357,7 @@ function convertArrayToJSON(
       }
     }
     // 无法转换，返回空数组
-    console.warn("Array value is not an array, returning empty array");
+    console.warn('Array value is not an array, returning empty array');
     return [];
   }
 
@@ -400,48 +365,46 @@ function convertArrayToJSON(
   const elementType = arrayType.slice(0, -2);
 
   // 转换每个元素
-  return value.map((item) => {
+  return value.map(item => {
     return convertValueToJSONType(item, elementType, structFields);
   });
 }
 
 /**
  * 推断 JSON 类型（当没有方法信息时）
- *
+ * 
  * @param value 参数值
  * @returns 推断后的 JSON 值
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function inferJSONType(value: any): unknown {
-  if (typeof value === "number" || typeof value === "bigint") {
+export function inferJSONType(value: any): any {
+  if (typeof value === 'number' || typeof value === 'bigint') {
     return value.toString();
   }
-  if (typeof value === "boolean") {
+  if (typeof value === 'boolean') {
     return value;
   }
   if (value instanceof Uint8Array) {
     return convertBytes(value);
   }
   // 如果是对象（可能是结构体），直接返回
-  if (value && typeof value === "object" && !Array.isArray(value)) {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
     return value;
   }
   // 如果是数组，递归推断每个元素
   if (Array.isArray(value)) {
-    return value.map((item) => inferJSONType(item));
+    return value.map(item => inferJSONType(item));
   }
   return String(value);
 }
 
 /**
  * 转换地址为字符串格式
- *
+ * 
  * @param address 地址（字符串或字节数组）
  * @returns 地址字符串
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function convertAddress(address: any): string {
-  if (typeof address === "string") {
+export function convertAddress(address: string | Uint8Array): string {
+  if (typeof address === 'string') {
     return address;
   }
   return bytesToHex(address);
@@ -449,27 +412,25 @@ export function convertAddress(address: any): string {
 
 /**
  * 转换金额为字符串格式
- *
+ * 
  * @param amount 金额（数字、字符串或 BigInt）
  * @returns 金额字符串
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function convertAmount(amount: any): string {
-  if (typeof amount === "bigint") {
+export function convertAmount(amount: string | number | bigint): string {
+  if (typeof amount === 'bigint') {
     return amount.toString();
   }
-  return typeof amount === "number" ? amount.toString() : String(amount);
+  return typeof amount === 'number' ? amount.toString() : String(amount);
 }
 
 /**
  * 转换代币 ID 为字符串格式
- *
+ * 
  * @param tokenId 代币 ID（字符串或字节数组）
  * @returns 代币 ID 字符串
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function convertTokenId(tokenId: any): string {
-  if (typeof tokenId === "string") {
+export function convertTokenId(tokenId: string | Uint8Array): string {
+  if (typeof tokenId === 'string') {
     return tokenId;
   }
   return bytesToHex(tokenId);
@@ -477,52 +438,51 @@ export function convertTokenId(tokenId: any): string {
 
 /**
  * 转换字节数组为十六进制字符串
- *
+ * 
  * @param bytes 字节数组
  * @returns 十六进制字符串（不带 0x 前缀）
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function convertBytes(bytes: any): string {
-  if (typeof bytes === "string") {
+export function convertBytes(bytes: string | Uint8Array): string {
+  if (typeof bytes === 'string') {
     // 如果已经是字符串，移除 0x 前缀（如果有）
-    return bytes.startsWith("0x") ? bytes.slice(2) : bytes;
+    return bytes.startsWith('0x') ? bytes.slice(2) : bytes;
   }
   return bytesToHex(bytes);
 }
 
 /**
  * 将字节数组转换为十六进制字符串
- *
+ * 
  * @param bytes 字节数组
  * @returns 十六进制字符串（不带 0x 前缀）
  */
 function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
 }
 
 /**
  * 将 JSON Payload 编码为 Base64 字符串
- *
+ * 
  * @param payload JSON 对象
  * @returns Base64 编码的字符串
  */
 export function encodePayload(payload: Record<string, any>): string {
   const jsonString = JSON.stringify(payload);
   // 在浏览器环境中使用 btoa，在 Node.js 环境中使用 Buffer
-  if (typeof btoa !== "undefined") {
+  if (typeof btoa !== 'undefined') {
     return btoa(jsonString);
-  } else if (typeof Buffer !== "undefined") {
-    return Buffer.from(jsonString, "utf-8").toString("base64");
+  } else if (typeof Buffer !== 'undefined') {
+    return Buffer.from(jsonString, 'utf-8').toString('base64');
   } else {
-    throw new Error("No base64 encoding function available. Please provide btoa or Buffer.");
+    throw new Error('No base64 encoding function available. Please provide btoa or Buffer.');
   }
 }
 
 /**
  * 构建并编码 JSON Payload（一步完成）
- *
+ * 
  * @param methodInfo 方法信息
  * @param args 参数值数组
  * @param options 构建选项
@@ -536,3 +496,4 @@ export function buildAndEncodePayload(
   const payload = buildJSONPayload(methodInfo, args, options);
   return encodePayload(payload);
 }
+

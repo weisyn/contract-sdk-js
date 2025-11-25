@@ -2,7 +2,7 @@
 
 **分类**: Market 市场示例  
 **难度**: ⭐⭐ 进阶  
-**最后更新**: 2025-11-23
+**最后更新**: 2025-01-23
 
 ---
 
@@ -36,5 +36,5 @@ wes contract call --address {contract_addr} --function Escrow --params '{"buyer"
 
 ---
 
-**最后更新**: 2025-11-23
+**最后更新**: 2025-01-23
 

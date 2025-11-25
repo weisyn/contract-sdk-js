@@ -1,12 +1,12 @@
 /**
  * 合约基类
- *
+ * 
  * 提供合约基类和生命周期管理
  */
 
-import { HostABI } from "../runtime/abi";
-import { Context } from "./context";
-import { ErrorCode, Address } from "./types";
+import { HostABI } from '../runtime/abi';
+import { Context } from './context';
+import { ErrorCode, Address } from './types';
 
 /**
  * 合约基类
@@ -62,7 +62,7 @@ export abstract class Contract {
   protected emitEventBytes(name: string, data: Uint8Array): void {
     // TODO: 实现 Base64 编码（AssemblyScript 可能需要手动实现）
     // 临时：将字节数组转为十六进制字符串
-    let hex = "";
+    let hex = '';
     for (let i = 0; i < data.length; i++) {
       const byte = data[i];
       hex += (byte >> 4).toString(16);
@@ -97,3 +97,4 @@ export abstract class Contract {
     HostABI.logDebug(message);
   }
 }
+

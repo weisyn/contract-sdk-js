@@ -1,18 +1,18 @@
 /**
  * RWA 操作 Helper
- *
+ * 
  * 提供现实世界资产（RWA）代币化功能
  * 基于 ISPC 受控外部交互机制，替代传统预言机
  * 对标 Go SDK 的 helpers/rwa/
- *
+ * 
  * 参考: contract-sdk-go/helpers/rwa/
  */
 
-import { External, Evidence } from "./external";
-import { Token } from "./token";
-import { Context } from "../framework/context";
-import { ErrorCode, TokenID, Amount } from "../framework/types";
-import { findJSONField, parseUint64 } from "../framework/utils/json";
+import { External, Evidence } from './external';
+import { Token } from './token';
+import { Context } from '../framework/context';
+import { ErrorCode, TokenID, Amount } from '../framework/types';
+import { findJSONField, parseUint64 } from '../framework/utils/json';
 
 /**
  * 验证并代币化结果
@@ -45,12 +45,12 @@ export class ValidateAndTokenizeResult {
 export class RWA {
   /**
    * 验证并代币化资产
-   *
+   * 
    * ISPC 创新点：
    * - 通过受控外部交互机制调用外部验证和估值 API
    * - 无需传统预言机，由 ISPC 运行时自动生成 ZK 证明
    * - 验证和估值结果自动上链
-   *
+   * 
    * @param assetID 资产ID
    * @param documents 资产文档（JSON 字符串）
    * @param validatorAPI 验证服务 API 端点
@@ -68,7 +68,7 @@ export class RWA {
     valuationEvidence: Evidence | null
   ): ValidateAndTokenizeResult | null {
     // 1. 参数验证
-    if (assetID === "" || validatorAPI === "" || valuationAPI === "") {
+    if (assetID === '' || validatorAPI === '' || valuationAPI === '') {
       return null;
     }
 
@@ -79,7 +79,7 @@ export class RWA {
     // 2. 通过 ISPC 受控机制验证资产
     const validationParams = this.buildValidationParams(assetID, documents);
     const validationData = External.validateAndQuery(
-      "api_response",
+      'api_response',
       validatorAPI,
       validationParams,
       validatorEvidence
@@ -91,13 +91,13 @@ export class RWA {
 
     // 解析验证结果
     const validationJSON = String.UTF8.decode(validationData.buffer);
-    const validatedStr = findJSONField(validationJSON, "validated");
-    const validated = validatedStr === "true" || validatedStr === "1";
+    const validatedStr = findJSONField(validationJSON, 'validated');
+    const validated = validatedStr === 'true' || validatedStr === '1';
 
     // 3. 通过 ISPC 受控机制获取资产估值
     const valuationParams = this.buildValuationParams(assetID);
     const valuationData = External.validateAndQuery(
-      "api_response",
+      'api_response',
       valuationAPI,
       valuationParams,
       valuationEvidence
@@ -109,7 +109,7 @@ export class RWA {
 
     // 解析估值结果
     const valuationJSON = String.UTF8.decode(valuationData.buffer);
-    const valueStr = findJSONField(valuationJSON, "value");
+    const valueStr = findJSONField(valuationJSON, 'value');
     const valuation = parseUint64(valueStr);
 
     if (valuation === 0) {
@@ -118,8 +118,8 @@ export class RWA {
 
     // 4. 执行代币化（使用 Token Helper）
     const caller = Context.getCaller();
-    const tokenID: TokenID = "RWA_" + assetID;
-
+    const tokenID: TokenID = 'RWA_' + assetID;
+    
     const mintResult = Token.mint(caller, valuation, tokenID);
     if (mintResult !== ErrorCode.SUCCESS) {
       return null;
@@ -149,13 +149,13 @@ export class RWA {
     validatorAPI: string,
     evidence: Evidence | null
   ): bool | null {
-    if (assetID === "" || validatorAPI === "" || evidence === null) {
+    if (assetID === '' || validatorAPI === '' || evidence === null) {
       return null;
     }
 
     const validationParams = this.buildValidationParams(assetID, documents);
     const validationData = External.validateAndQuery(
-      "api_response",
+      'api_response',
       validatorAPI,
       validationParams,
       evidence
@@ -166,8 +166,8 @@ export class RWA {
     }
 
     const validationJSON = String.UTF8.decode(validationData.buffer);
-    const validatedStr = findJSONField(validationJSON, "validated");
-    const isValid: bool = validatedStr === "true" || validatedStr === "1";
+    const validatedStr = findJSONField(validationJSON, 'validated');
+    const isValid: bool = validatedStr === 'true' || validatedStr === '1';
     return isValid;
   }
 
@@ -181,17 +181,17 @@ export class RWA {
    */
   static valueAsset(
     assetID: string,
-    _documents: string,
+    documents: string,
     valuationAPI: string,
     evidence: Evidence | null
   ): Amount | null {
-    if (assetID === "" || valuationAPI === "" || evidence === null) {
+    if (assetID === '' || valuationAPI === '' || evidence === null) {
       return null;
     }
 
     const valuationParams = this.buildValuationParams(assetID);
     const valuationData = External.validateAndQuery(
-      "api_response",
+      'api_response',
       valuationAPI,
       valuationParams,
       evidence
@@ -202,7 +202,7 @@ export class RWA {
     }
 
     const valuationJSON = String.UTF8.decode(valuationData.buffer);
-    const valueStr = findJSONField(valuationJSON, "value");
+    const valueStr = findJSONField(valuationJSON, 'value');
     const valuation: Amount = parseUint64(valueStr);
 
     return valuation > 0 ? valuation : null;
@@ -212,10 +212,10 @@ export class RWA {
    * 构建验证参数 JSON
    */
   private static buildValidationParams(assetID: string, documents: string): string {
-    let params = "{";
+    let params = '{';
     params += `"asset_id":"${this.escapeJSON(assetID)}"`;
     params += `,"documents":${documents}`;
-    params += "}";
+    params += '}';
     return params;
   }
 
@@ -223,9 +223,9 @@ export class RWA {
    * 构建估值参数 JSON
    */
   private static buildValuationParams(assetID: string): string {
-    let params = "{";
+    let params = '{';
     params += `"asset_id":"${this.escapeJSON(assetID)}"`;
-    params += "}";
+    params += '}';
     return params;
   }
 
@@ -233,24 +233,19 @@ export class RWA {
    * 转义 JSON 字符串
    */
   private static escapeJSON(str: string): string {
-    let result = "";
+    let result = '';
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      if (char === 0x22) {
-        // '"'
+      if (char === 0x22) { // '"'
         result += '\\"';
-      } else if (char === 0x5c) {
-        // '\'
-        result += "\\\\";
-      } else if (char === 0x0a) {
-        // '\n'
-        result += "\\n";
-      } else if (char === 0x0d) {
-        // '\r'
-        result += "\\r";
-      } else if (char === 0x09) {
-        // '\t'
-        result += "\\t";
+      } else if (char === 0x5C) { // '\'
+        result += '\\\\';
+      } else if (char === 0x0A) { // '\n'
+        result += '\\n';
+      } else if (char === 0x0D) { // '\r'
+        result += '\\r';
+      } else if (char === 0x09) { // '\t'
+        result += '\\t';
       } else {
         result += String.fromCharCode(char);
       }
@@ -258,3 +253,4 @@ export class RWA {
     return result;
   }
 }
+

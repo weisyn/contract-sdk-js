@@ -1,14 +1,14 @@
 /**
  * 解析工具
- *
+ * 
  * 提供参数解析和类型转换功能
  * 用于合约参数解析
  */
 
-import { Context } from "../context";
-import { Address } from "../types";
-import { findJSONField, parseUint64 } from "./json";
-import { AddressUtils } from "./address";
+import { Context } from '../context';
+import { Address } from '../types';
+import { findJSONField, parseUint64 } from './json';
+import { AddressUtils } from './address';
 
 /**
  * 解析工具类
@@ -22,7 +22,7 @@ export class ParsingUtils {
    */
   static parseAddressFromJSON(paramsStr: string, key: string): Address | null {
     const addressStr = findJSONField(paramsStr, key);
-    if (addressStr === "") {
+    if (addressStr === '') {
       return null;
     }
     return this.parseAddress(addressStr);
@@ -34,7 +34,7 @@ export class ParsingUtils {
    * @returns 地址字节数组，失败返回 null
    */
   static parseAddress(addressStr: string): Address | null {
-    if (addressStr === "") {
+    if (addressStr === '') {
       return null;
     }
 
@@ -62,7 +62,7 @@ export class ParsingUtils {
    */
   static parseAmountFromJSON(paramsStr: string, key: string): u64 {
     const amountStr = findJSONField(paramsStr, key);
-    if (amountStr === "") {
+    if (amountStr === '') {
       return 0;
     }
     return parseUint64(amountStr);
@@ -86,7 +86,7 @@ export class ParsingUtils {
    */
   static parseBooleanFromJSON(paramsStr: string, key: string): bool {
     const valueStr = findJSONField(paramsStr, key);
-    return valueStr === "true" || valueStr === "1";
+    return valueStr === 'true' || valueStr === '1';
   }
 
   /**
@@ -96,13 +96,13 @@ export class ParsingUtils {
    */
   static hexToBytes(hex: string): Uint8Array | null {
     // 移除 0x 前缀
-    if (hex.length >= 2 && hex.substring(0, 2) === "0x") {
+    if (hex.length >= 2 && hex.substring(0, 2) === '0x') {
       hex = hex.substring(2);
     }
 
     // 确保长度为偶数
     if (hex.length % 2 !== 0) {
-      hex = "0" + hex;
+      hex = '0' + hex;
     }
 
     const result = new Array<u8>();
@@ -122,18 +122,16 @@ export class ParsingUtils {
    * 十六进制字符转字节
    */
   private static hexCharToByte(charCode: i32): i32 {
-    if (charCode >= 48 && charCode <= 57) {
-      // '0'-'9'
+    if (charCode >= 48 && charCode <= 57) { // '0'-'9'
       return charCode - 48;
     }
-    if (charCode >= 65 && charCode <= 70) {
-      // 'A'-'F'
+    if (charCode >= 65 && charCode <= 70) { // 'A'-'F'
       return charCode - 65 + 10;
     }
-    if (charCode >= 97 && charCode <= 102) {
-      // 'a'-'f'
+    if (charCode >= 97 && charCode <= 102) { // 'a'-'f'
       return charCode - 97 + 10;
     }
     return -1;
   }
 }
+

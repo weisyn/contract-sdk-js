@@ -2,18 +2,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Staking 操作 Helper
- *
+ * 
  * 提供质押和委托相关的业务语义 API
  * 对标 Go SDK 的 helpers/staking/
- *
+ * 
  * 参考: contract-sdk-go/helpers/staking/
  */
 
 // Note: HostABI and ErrorCode are used in AssemblyScript runtime but TypeScript compiler cannot detect them
-import { HostABI } from "../runtime/abi";
-import { Context } from "../framework/context";
-import { TransactionBuilder } from "../framework/transaction";
-import { ErrorCode, Address, Amount, TokenID } from "../framework/types";
+import { HostABI } from '../runtime/abi';
+import { Context } from '../framework/context';
+import { TransactionBuilder } from '../framework/transaction';
+import { ErrorCode, Address, Amount, TokenID } from '../framework/types';
 /* eslint-enable @typescript-eslint/no-unused-vars */
 
 /**
@@ -57,10 +57,10 @@ export class Staking {
     // 4. 发出质押事件
     const caller = Context.getCaller();
     const event = JSON.stringify({
-      name: "Stake",
+      name: 'Stake',
       staker: this.addressToBase58(staker),
       validator: this.addressToBase58(validator),
-      token_id: tokenID || "",
+      token_id: tokenID || '',
       amount: amount.toString(),
       caller: this.addressToBase58(caller),
     });
@@ -106,10 +106,10 @@ export class Staking {
     // 4. 发出解质押事件
     const caller = Context.getCaller();
     const event = JSON.stringify({
-      name: "Unstake",
+      name: 'Unstake',
       staker: this.addressToBase58(staker),
       validator: this.addressToBase58(validator),
-      token_id: tokenID || "",
+      token_id: tokenID || '',
       amount: amount.toString(),
       caller: this.addressToBase58(caller),
     });
@@ -155,10 +155,10 @@ export class Staking {
     // 4. 发出委托事件
     const caller = Context.getCaller();
     const event = JSON.stringify({
-      name: "Delegate",
+      name: 'Delegate',
       delegator: this.addressToBase58(delegator),
       validator: this.addressToBase58(validator),
-      token_id: tokenID || "",
+      token_id: tokenID || '',
       amount: amount.toString(),
       caller: this.addressToBase58(caller),
     });
@@ -204,10 +204,10 @@ export class Staking {
     // 4. 发出取消委托事件
     const caller = Context.getCaller();
     const event = JSON.stringify({
-      name: "Undelegate",
+      name: 'Undelegate',
       delegator: this.addressToBase58(delegator),
       validator: this.addressToBase58(validator),
-      token_id: tokenID || "",
+      token_id: tokenID || '',
       amount: amount.toString(),
       caller: this.addressToBase58(caller),
     });
@@ -218,7 +218,11 @@ export class Staking {
 
   // ==================== 私有辅助方法 ====================
 
-  private static validateStakeParams(staker: Address, validator: Address, amount: Amount): bool {
+  private static validateStakeParams(
+    staker: Address,
+    validator: Address,
+    amount: Amount
+  ): bool {
     if (staker.length === 0 || validator.length === 0) {
       return false;
     }
@@ -259,7 +263,7 @@ export class Staking {
     const base58 = HostABI.addressBytesToBase58(address);
     if (base58 === null) {
       // 如果编码失败，回退到十六进制编码（用于调试）
-      let hex = "";
+      let hex = '';
       for (let i = 0; i < address.length; i++) {
         const byte = address[i];
         hex += (byte >> 4).toString(16);
@@ -270,3 +274,4 @@ export class Staking {
     return base58;
   }
 }
+

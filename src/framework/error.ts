@@ -1,13 +1,13 @@
 /**
  * 错误码映射工具
- *
+ * 
  * 提供统一的错误码映射和转换功能
  * 确保与 Go SDK 的错误码语义一致
- *
+ * 
  * 参考: contract-sdk-go/framework/errors.go
  */
 
-import { ErrorCode } from "./types";
+import { ErrorCode } from './types';
 
 /**
  * 错误码映射类
@@ -33,15 +33,15 @@ export class ErrorCodeMapper {
     // 9 = ERROR_NOT_IMPLEMENTED
     // 10 = ERROR_PERMISSION_DENIED
     // 0xFFFFFFFF = ERROR_EXECUTION_FAILED (失败标志)
-
+    
     if (hostABICode === 0) {
       return ErrorCode.SUCCESS;
-    } else if (hostABICode === 0xffffffff) {
+    } else if (hostABICode === 0xFFFFFFFF) {
       return ErrorCode.ERROR_EXECUTION_FAILED;
     } else if (hostABICode >= 1 && hostABICode <= 10) {
       return hostABICode as ErrorCode;
     }
-
+    
     // 未知错误码映射为 ERROR_UNKNOWN
     return ErrorCode.ERROR_UNKNOWN;
   }
@@ -81,31 +81,32 @@ export class ErrorCodeMapper {
   static getDescription(errorCode: ErrorCode): string {
     switch (errorCode) {
       case ErrorCode.SUCCESS:
-        return "Success";
+        return 'Success';
       case ErrorCode.ERROR_INVALID_PARAMS:
-        return "Invalid parameters";
+        return 'Invalid parameters';
       case ErrorCode.ERROR_INSUFFICIENT_BALANCE:
-        return "Insufficient balance";
+        return 'Insufficient balance';
       case ErrorCode.ERROR_UNAUTHORIZED:
-        return "Unauthorized";
+        return 'Unauthorized';
       case ErrorCode.ERROR_NOT_FOUND:
-        return "Not found";
+        return 'Not found';
       case ErrorCode.ERROR_ALREADY_EXISTS:
-        return "Already exists";
+        return 'Already exists';
       case ErrorCode.ERROR_EXECUTION_FAILED:
-        return "Execution failed";
+        return 'Execution failed';
       case ErrorCode.ERROR_INVALID_STATE:
-        return "Invalid state";
+        return 'Invalid state';
       case ErrorCode.ERROR_TIMEOUT:
-        return "Timeout";
+        return 'Timeout';
       case ErrorCode.ERROR_NOT_IMPLEMENTED:
-        return "Not implemented";
+        return 'Not implemented';
       case ErrorCode.ERROR_PERMISSION_DENIED:
-        return "Permission denied";
+        return 'Permission denied';
       case ErrorCode.ERROR_UNKNOWN:
-        return "Unknown error";
+        return 'Unknown error';
       default:
-        return "Unknown error code";
+        return 'Unknown error code';
     }
   }
 }
+
