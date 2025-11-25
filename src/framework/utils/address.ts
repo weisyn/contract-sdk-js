@@ -1,12 +1,12 @@
 /**
  * 地址编码工具
- * 
+ *
  * 提供地址的 Base58 编码/解码功能
  * 封装 HostABI 的地址编码函数
  */
 
-import { HostABI } from '../../runtime/abi';
-import { Address } from '../types';
+import { HostABI } from "../../runtime/abi";
+import { Address } from "../types";
 
 /**
  * 地址编码工具类
@@ -45,11 +45,11 @@ export class AddressUtils {
    * @returns 十六进制字符串
    */
   static toHex(address: Address): string {
-    let hex = '';
+    let hex = "";
     for (let i = 0; i < address.length; i++) {
       const byte = address[i];
-      const high = (byte >> 4) & 0xF;
-      const low = byte & 0xF;
+      const high = (byte >> 4) & 0xf;
+      const low = byte & 0xf;
       hex += String.fromCharCode(high < 10 ? 48 + high : 87 + high);
       hex += String.fromCharCode(low < 10 ? 48 + low : 87 + low);
     }
@@ -62,7 +62,7 @@ export class AddressUtils {
    * @returns 十六进制字符串（带 0x 前缀）
    */
   static toHexWithPrefix(address: Address): string {
-    return '0x' + this.toHex(address);
+    return "0x" + this.toHex(address);
   }
 
   /**

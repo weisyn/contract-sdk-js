@@ -20,13 +20,20 @@
  *   asc contract.ts --target release --outFile contract.wasm
  */
 
-import { Contract, Context, ErrorCode } from '../../../src/framework';
-import { HostABI } from '../../../src/runtime';
-import { Token } from '../../../src/helpers/token';
-import { Address, Amount, TokenID } from '../../../src/framework/types';
-import { findJSONField, parseUint64 } from '../../../src/framework/utils/json';
-import { ParsingUtils } from '../../../src/framework/utils/parsing';
-import { FormatUtils } from '../../../src/framework/utils/format';
+import {
+  Contract,
+  Context,
+  ErrorCode,
+  HostABI,
+  Token,
+  Address,
+  Amount,
+  TokenID,
+  findJSONField,
+  parseUint64,
+  ParsingUtils,
+  FormatUtils,
+} from '@weisyn/contract-sdk-js/as';
 
 /**
  * Game Currency 合约实例

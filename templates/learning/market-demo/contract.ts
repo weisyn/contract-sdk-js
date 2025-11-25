@@ -7,9 +7,7 @@
  *   asc contract.ts --target release --outFile contract.wasm
  */
 
-import { Contract, Context, ErrorCode } from '../../src/framework';
-import { HostABI } from '../../src/runtime';
-import { Market } from '../../src/helpers/market';
+import { Contract, Context, ErrorCode, HostABI, Market } from '@weisyn/contract-sdk-js/as';
 
 /**
  * Market 合约

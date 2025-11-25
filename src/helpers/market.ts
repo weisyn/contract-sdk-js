@@ -1,19 +1,19 @@
 /**
  * Market 操作 Helper
- * 
+ *
  * 提供市场相关的业务语义 API，包括托管、分阶段释放等功能
  * 对标 Go SDK 的 helpers/market/
- * 
+ *
  * 参考: contract-sdk-go/helpers/market/
- * 
+ *
  * 注意：本模块仅提供原子操作（Escrow、Release），不包含组合场景（如Swap、Liquidity等）
  */
 
-import { HostABI } from '../runtime/abi';
-import { Context } from '../framework/context';
-import { TransactionBuilder } from '../framework/transaction';
-import { ErrorCode, Address, Amount, TokenID, Hash } from '../framework/types';
-import { computeHash } from '../framework/utils/hash';
+import { HostABI } from "../runtime/abi";
+import { Context } from "../framework/context";
+import { TransactionBuilder } from "../framework/transaction";
+import { ErrorCode, Address, Amount, TokenID, Hash } from "../framework/types";
+import { computeHash } from "../framework/utils/hash";
 
 /**
  * Market 操作类
@@ -68,12 +68,12 @@ export class Market {
     const sellerBase58 = this.addressToBase58(seller);
     const callerBase58 = this.addressToBase58(caller);
     const escrowIDStr = String.UTF8.decode(escrowID.buffer);
-    
+
     const event = JSON.stringify({
-      name: 'Escrow',
+      name: "Escrow",
       buyer: buyerBase58,
       seller: sellerBase58,
-      token_id: tokenID || '',
+      token_id: tokenID || "",
       amount: amount.toString(),
       escrow_id: escrowIDStr,
       caller: callerBase58,
@@ -133,12 +133,12 @@ export class Market {
     const beneficiaryBase58 = this.addressToBase58(beneficiary);
     const callerBase58 = this.addressToBase58(caller);
     const vestingIDStr = String.UTF8.decode(vestingID.buffer);
-    
+
     const event = JSON.stringify({
-      name: 'Release',
+      name: "Release",
       from: fromBase58,
       beneficiary: beneficiaryBase58,
-      token_id: tokenID || '',
+      token_id: tokenID || "",
       total_amount: amount.toString(),
       vesting_id: vestingIDStr,
       caller: callerBase58,
@@ -193,7 +193,7 @@ export class Market {
   }
 
   private static buildEscrowStateID(escrowID: Uint8Array): Uint8Array {
-    const prefix = 'escrow:';
+    const prefix = "escrow:";
     const prefixBytes = String.UTF8.encode(prefix);
     const result = new Uint8Array(prefixBytes.length + escrowID.length);
     result.set(prefixBytes, 0);
@@ -202,7 +202,7 @@ export class Market {
   }
 
   private static buildVestingStateID(vestingID: Uint8Array): Uint8Array {
-    const prefix = 'vesting:';
+    const prefix = "vesting:";
     const prefixBytes = String.UTF8.encode(prefix);
     const result = new Uint8Array(prefixBytes.length + vestingID.length);
     result.set(prefixBytes, 0);
@@ -219,7 +219,7 @@ export class Market {
     // 组合所有数据
     const amountBytes = new Uint8Array(8);
     for (let i = 0; i < 8; i++) {
-      amountBytes[i] = <u8>((amount >> (i * 8)) & 0xFF);
+      amountBytes[i] = <u8>((amount >> (i * 8)) & 0xff);
     }
 
     const combined = new Uint8Array(
@@ -247,7 +247,7 @@ export class Market {
     // 组合所有数据
     const amountBytes = new Uint8Array(8);
     for (let i = 0; i < 8; i++) {
-      amountBytes[i] = <u8>((amount >> (i * 8)) & 0xFF);
+      amountBytes[i] = <u8>((amount >> (i * 8)) & 0xff);
     }
 
     const combined = new Uint8Array(
@@ -286,7 +286,7 @@ export class Market {
     const base58 = HostABI.addressBytesToBase58(address);
     if (base58 === null) {
       // 如果编码失败，回退到十六进制编码（用于调试）
-      let hex = '';
+      let hex = "";
       for (let i = 0; i < address.length; i++) {
         const byte = address[i];
         hex += (byte >> 4).toString(16);
@@ -297,4 +297,3 @@ export class Market {
     return base58;
   }
 }
-

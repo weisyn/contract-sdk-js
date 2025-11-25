@@ -1,10 +1,10 @@
 /**
  * 结果类型
- * 
+ *
  * 提供 Result<T> 类型和错误处理
  */
 
-import { ErrorCode } from './types';
+import { ErrorCode } from "./types";
 
 /**
  * Result 类型
@@ -54,7 +54,7 @@ export class Result<T> {
    */
   unwrap(): T {
     if (!this.ok || this.value === null) {
-      throw new Error('Result is not ok');
+      throw new Error("Result is not ok");
     }
     return this.value!;
   }
@@ -64,9 +64,8 @@ export class Result<T> {
    */
   unwrapErr(): ErrorCode {
     if (this.ok || this.error === null) {
-      throw new Error('Result is not error');
+      throw new Error("Result is not error");
     }
     return this.error;
   }
 }
-

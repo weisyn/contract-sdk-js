@@ -1,12 +1,12 @@
 /**
  * 执行上下文
- * 
+ *
  * 提供合约执行上下文信息
  * 参考: contract-sdk-go/framework/contract_base.go
  */
 
-import { HostABI } from '../runtime/abi';
-import { Address, Hash } from './types';
+import { HostABI } from "../runtime/abi";
+import { Address, Hash } from "./types";
 
 /**
  * 执行上下文类
@@ -104,4 +104,3 @@ export class Context {
     return HostABI.getTimestamp();
   }
 }
-

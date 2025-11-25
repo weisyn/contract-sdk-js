@@ -1,19 +1,19 @@
 /**
  * NFT 操作 Helper
- * 
+ *
  * 提供 NFT 铸造、转移等功能
  * 对标 Go SDK 的 helpers/nft/
- * 
+ *
  * 参考: contract-sdk-go/helpers/nft/
  */
 
-import { HostABI } from '../runtime/abi';
-import { Context } from '../framework/context';
-import { TransactionBuilder } from '../framework/transaction';
-import { ErrorCode, Address, TokenID, Hash } from '../framework/types';
-import { Storage } from '../framework/storage';
-import { computeHash } from '../framework/utils/hash';
-import { Token } from './token';
+import { HostABI } from "../runtime/abi";
+import { Context } from "../framework/context";
+import { TransactionBuilder } from "../framework/transaction";
+import { ErrorCode, Address, TokenID, Hash } from "../framework/types";
+import { Storage } from "../framework/storage";
+import { computeHash } from "../framework/utils/hash";
+import { Token } from "./token";
 
 /**
  * NFT 操作类
@@ -62,7 +62,7 @@ export class NFT {
     // 5. 发出 NFT 铸造事件
     const caller = Context.getCaller();
     const eventData: Record<string, string> = {
-      name: 'NFTMint',
+      name: "NFTMint",
       to: this.addressToBase58(to),
       token_id: tokenID,
       minter: this.addressToBase58(caller),
@@ -106,7 +106,7 @@ export class NFT {
 
     // 5. 发出 NFT 转移事件
     const event = JSON.stringify({
-      name: 'NFTTransfer',
+      name: "NFTTransfer",
       from: this.addressToBase58(from),
       to: this.addressToBase58(to),
       token_id: tokenID,
@@ -129,11 +129,11 @@ export class NFT {
 
     // 在EUTXO模型中，NFT所有权通过查询UTXO余额来确定
     // 如果某个地址对某个tokenID的余额为1，则该地址拥有该NFT
-    // 
+    //
     // 注意：这是一个简化实现
     // 实际应用中，NFT所有权应该通过StateOutput或索引来管理
     // 当前实现仅作为示例，实际应该使用更高效的查询方式
-    // 
+    //
     // 返回null表示NFT不存在或无法确定所有者
     // 实际应用中应该实现完整的查询逻辑（如通过索引服务）
 
@@ -176,11 +176,7 @@ export class NFT {
   /**
    * 验证转移参数
    */
-  private static validateTransferParams(
-    from: Address,
-    to: Address,
-    tokenID: TokenID
-  ): bool {
+  private static validateTransferParams(from: Address, to: Address, tokenID: TokenID): bool {
     if (from.length === 0 || to.length === 0) {
       return false;
     }
@@ -216,7 +212,7 @@ export class NFT {
     const base58 = HostABI.addressBytesToBase58(address);
     if (base58 === null) {
       // 如果编码失败，回退到十六进制编码（用于调试）
-      let hex = '';
+      let hex = "";
       for (let i = 0; i < address.length; i++) {
         const byte = address[i];
         hex += (byte >> 4).toString(16);
@@ -248,7 +244,7 @@ export class NFT {
     const combined = new Uint8Array(stateID.length + metadata.length);
     combined.set(stateID, 0);
     combined.set(metadata, stateID.length);
-    
+
     // 使用工具函数计算哈希
     return computeHash(combined);
   }

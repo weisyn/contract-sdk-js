@@ -1,10 +1,11 @@
 /**
  * 内存管理辅助函数
- * 
+ *
  * 提供内存分配和字符串/字节数组转换的辅助函数
  */
 
-import { malloc } from './env';
+// 使用命名空间导入以避免 Rollup 对单个导出进行严格检查
+import * as env from "./env";
 
 /**
  * 分配字符串到线性内存
@@ -13,7 +14,7 @@ import { malloc } from './env';
  */
 export function allocateString(str: string): u32 {
   const utf8 = String.UTF8.encode(str);
-  const ptr = malloc(utf8.byteLength);
+  const ptr = env.malloc(utf8.byteLength);
   if (ptr === 0) {
     return 0;
   }
@@ -28,7 +29,7 @@ export function allocateString(str: string): u32 {
  * @returns 内存指针
  */
 export function allocateBytes(bytes: Uint8Array): u32 {
-  const ptr = malloc(bytes.length);
+  const ptr = env.malloc(bytes.length);
   if (ptr === 0) {
     return 0;
   }
@@ -45,7 +46,7 @@ export function allocateBytes(bytes: Uint8Array): u32 {
  */
 export function readString(ptr: u32, len: u32): string {
   if (ptr === 0 || len === 0) {
-    return '';
+    return "";
   }
   const buffer = new Uint8Array(len);
   // AssemblyScript: memory.copy(dest, src, size)
@@ -68,4 +69,3 @@ export function readBytes(ptr: u32, len: u32): Uint8Array {
   memory.copy(changetype<usize>(buffer.buffer), ptr, len);
   return buffer;
 }
-

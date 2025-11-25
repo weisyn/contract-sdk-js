@@ -22,10 +22,7 @@
  *   asc contract.ts --target release --outFile contract.wasm
  */
 
-import { Contract, Context, ErrorCode } from '../../src/framework';
-import { HostABI } from '../../src/runtime';
-import { Token } from '../../src/helpers/token';
-import { Governance } from '../../src/helpers/governance';
+import { Contract, Context, ErrorCode, HostABI, Token, Governance } from '@weisyn/contract-sdk-js/as';
 
 // ==================== 合约配置区 ====================
 //

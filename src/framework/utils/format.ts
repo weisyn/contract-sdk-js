@@ -1,11 +1,11 @@
 /**
  * 格式化工具
- * 
+ *
  * 提供数据格式化功能，用于事件和返回值格式化
  */
 
-import { Address } from '../types';
-import { AddressUtils } from './address';
+import { Address } from "../types";
+import { AddressUtils } from "./address";
 
 /**
  * 格式化工具类
@@ -17,11 +17,11 @@ export class FormatUtils {
    * @returns 十六进制字符串
    */
   static bytesToHex(bytes: Uint8Array): string {
-    let hex = '';
+    let hex = "";
     for (let i = 0; i < bytes.length; i++) {
       const byte = bytes[i];
-      const high = (byte >> 4) & 0xF;
-      const low = byte & 0xF;
+      const high = (byte >> 4) & 0xf;
+      const low = byte & 0xf;
       hex += String.fromCharCode(high < 10 ? 48 + high : 87 + high);
       hex += String.fromCharCode(low < 10 ? 48 + low : 87 + low);
     }
@@ -34,7 +34,7 @@ export class FormatUtils {
    * @returns 十六进制字符串（带 0x 前缀）
    */
   static bytesToHexWithPrefix(bytes: Uint8Array): string {
-    return '0x' + this.bytesToHex(bytes);
+    return "0x" + this.bytesToHex(bytes);
   }
 
   /**
@@ -74,4 +74,3 @@ export class FormatUtils {
     return AddressUtils.toHexWithPrefix(address);
   }
 }
-

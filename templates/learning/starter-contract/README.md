@@ -6,8 +6,8 @@
 
 - **版本**：1.0
 - **状态**：stable
-- **最后更新**：2025-01-23
-- **最后审核**：2025-01-23
+- **最后更新**：2025-11-23
+- **最后审核**：2025-11-23
 - **所有者**：合约平台组
 - **适用范围**：WES 合约学习模板
 
@@ -54,8 +54,7 @@
 ### 📋 基础结构模板
 
 ```typescript
-import { Contract, Context, ErrorCode } from '../../src/framework';
-import { HostABI } from '../../src/runtime';
+import { Contract, Context, ErrorCode, HostABI } from '@weisyn/contract-sdk-js/as';
 
 class MyContract extends Contract {
   onInit(params: Uint8Array): ErrorCode {

@@ -7,11 +7,16 @@
  *   asc contract.ts --target release --outFile contract.wasm
  */
 
-import { Contract, Context, ErrorCode } from '../../../src/framework';
-import { HostABI } from '../../../src/runtime';
-import { Token } from '../../../src/helpers/token';
-import { Address } from '../../../src/framework/types';
-import { findJSONField, parseUint64 } from '../../../src/framework/utils/json';
+import {
+  Contract,
+  Context,
+  ErrorCode,
+  HostABI,
+  Token,
+  Address,
+  findJSONField,
+  parseUint64,
+} from '@weisyn/contract-sdk-js/as';
 
 /**
  * ERC-20 Token 合约

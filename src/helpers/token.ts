@@ -1,16 +1,17 @@
 /**
  * 代币操作 Helper
- * 
+ *
  * 提供代币转账、铸造、销毁等功能
  * 对标 Go SDK 的 helpers/token/
- * 
+ *
  * 参考: contract-sdk-go/helpers/token/
  */
 
-import { HostABI } from '../runtime/abi';
-import { Context } from '../framework/context';
-import { TransactionBuilder } from '../framework/transaction';
-import { ErrorCode, Address, Amount, TokenID } from '../framework/types';
+import { HostABI, BatchOutputItem } from "../runtime/abi";
+import { Context } from "../framework/context";
+import { TransactionBuilder } from "../framework/transaction";
+import { ErrorCode, Address, Amount, TokenID, Hash } from "../framework/types";
+import { computeHash } from "../framework/utils/hash";
 // Note: base64Encode and AddressUtils may be used in AssemblyScript runtime
 // but TypeScript compiler cannot detect them
 // import { encode as base64Encode } from '../framework/utils/base64';
@@ -28,12 +29,7 @@ export class Token {
    * @param tokenID 代币ID（null 表示原生币）
    * @returns 错误码
    */
-  static transfer(
-    from: Address,
-    to: Address,
-    amount: Amount,
-    tokenID: TokenID | null
-  ): ErrorCode {
+  static transfer(from: Address, to: Address, amount: Amount, tokenID: TokenID | null): ErrorCode {
     // 1. 参数验证
     if (!this.validateTransferParams(from, to, amount)) {
       return ErrorCode.ERROR_INVALID_PARAMS;
@@ -47,16 +43,16 @@ export class Token {
 
     // 3. 创建 UTXO 输出（转账给接收者）
     const outputIndex = HostABI.createUTXOOutput(to, amount, tokenID);
-    if (outputIndex === 0xFFFFFFFF) {
+    if (outputIndex === 0xffffffff) {
       return ErrorCode.ERROR_EXECUTION_FAILED;
     }
 
     // 4. 发出转账事件
     const event = JSON.stringify({
-      name: 'Transfer',
+      name: "Transfer",
       from: this.addressToBase58(from),
       to: this.addressToBase58(to),
-      token_id: tokenID || '',
+      token_id: tokenID || "",
       amount: amount.toString(),
     });
     HostABI.emitEvent(event);
@@ -79,14 +75,14 @@ export class Token {
 
     // 2. 创建 UTXO 输出（铸造给接收者）
     const outputIndex = HostABI.createUTXOOutput(to, amount, tokenID);
-    if (outputIndex === 0xFFFFFFFF) {
+    if (outputIndex === 0xffffffff) {
       return ErrorCode.ERROR_EXECUTION_FAILED;
     }
 
     // 3. 发出铸造事件
     const caller = Context.getCaller();
     const event = JSON.stringify({
-      name: 'Mint',
+      name: "Mint",
       to: this.addressToBase58(to),
       token_id: tokenID,
       amount: amount.toString(),
@@ -103,7 +99,7 @@ export class Token {
    * @param amount 金额
    * @param tokenID 代币ID
    * @returns 错误码
-   * 
+   *
    * 实现说明：
    * 在UTXO模型中，销毁代币的标准方式是将其转移到零地址。
    * 零地址是一个特殊的地址，代币一旦转移到零地址，就无法再被使用。
@@ -124,12 +120,13 @@ export class Token {
     // 3. 构建交易：将代币转移到零地址（销毁）
     // 零地址是一个全0的地址，代币转移到零地址后无法再被使用
     const zeroAddr = new Uint8Array(20); // 全0地址
-    
+
     // 使用TransactionBuilder构建转账交易
     const builder = TransactionBuilder.begin();
-    builder.transfer(from, zeroAddr, tokenID, amount);
+    // transfer(from, to, amount, tokenID)
+    builder.transfer(from, zeroAddr, amount, tokenID);
     const result = builder.finalize();
-    
+
     if (!result.success) {
       return result.errorCode;
     }
@@ -137,7 +134,7 @@ export class Token {
     // 4. 发出销毁事件
     const fromBase58 = this.addressToBase58(from);
     const event = JSON.stringify({
-      name: 'Burn',
+      name: "Burn",
       from: fromBase58,
       token_id: tokenID,
       amount: amount.toString(),
@@ -165,12 +162,7 @@ export class Token {
    * @param amount 授权数量
    * @returns 错误码
    */
-  static approve(
-    owner: Address,
-    spender: Address,
-    tokenID: TokenID,
-    amount: Amount
-  ): ErrorCode {
+  static approve(owner: Address, spender: Address, tokenID: TokenID, amount: Amount): ErrorCode {
     // 1. 参数验证
     if (!this.validateApproveParams(owner, spender, tokenID, amount)) {
       return ErrorCode.ERROR_INVALID_PARAMS;
@@ -193,14 +185,14 @@ export class Token {
     const builder = TransactionBuilder.begin();
     builder.addStateOutput(stateID, 1, execHash);
     const result = builder.finalize();
-    
+
     if (!result.success) {
       return result.errorCode;
     }
 
     // 6. 发出授权事件
     const event = JSON.stringify({
-      name: 'Approve',
+      name: "Approve",
       owner: this.addressToBase58(owner),
       spender: this.addressToBase58(spender),
       token_id: tokenID,
@@ -218,11 +210,7 @@ export class Token {
    * @param amount 冻结数量
    * @returns 错误码
    */
-  static freeze(
-    target: Address,
-    tokenID: TokenID,
-    amount: Amount
-  ): ErrorCode {
+  static freeze(target: Address, tokenID: TokenID, amount: Amount): ErrorCode {
     // 1. 参数验证
     if (!this.validateFreezeParams(target, tokenID, amount)) {
       return ErrorCode.ERROR_INVALID_PARAMS;
@@ -244,7 +232,7 @@ export class Token {
     const builder = TransactionBuilder.begin();
     builder.addStateOutput(stateID, 1, execHash);
     const result = builder.finalize();
-    
+
     if (!result.success) {
       return result.errorCode;
     }
@@ -252,7 +240,7 @@ export class Token {
     // 6. 发出冻结事件
     const caller = Context.getCaller();
     const event = JSON.stringify({
-      name: 'Freeze',
+      name: "Freeze",
       target: this.addressToBase58(target),
       token_id: tokenID,
       amount: amount.toString(),
@@ -293,26 +281,22 @@ export class Token {
     }
 
     // 4. 构建批量输出项
-    const items = new Array<{recipient: Address; amount: u64; tokenID: string | null}>();
+    const items = new Array<BatchOutputItem>();
     for (let i = 0; i < recipients.length; i++) {
-      items.push({
-        recipient: recipients[i].address,
-        amount: recipients[i].amount,
-        tokenID: tokenID,
-      });
+      items.push(new BatchOutputItem(recipients[i].address, recipients[i].amount, tokenID));
     }
 
     // 5. 批量创建输出
     const count = HostABI.batchCreateOutputsSimple(items);
-    if (count === 0xFFFFFFFF) {
+    if (count === 0xffffffff) {
       return ErrorCode.ERROR_EXECUTION_FAILED;
     }
 
     // 6. 发出空投事件
     const event = JSON.stringify({
-      name: 'Airdrop',
+      name: "Airdrop",
       from: this.addressToBase58(from),
-      token_id: tokenID || '',
+      token_id: tokenID || "",
       total_amount: totalAmount.toString(),
       recipient_count: recipients.length.toString(),
     });
@@ -327,28 +311,21 @@ export class Token {
    * @param tokenID 代币ID
    * @returns 错误码
    */
-  static batchMint(
-    recipients: Array<MintRecipient>,
-    tokenID: TokenID
-  ): ErrorCode {
+  static batchMint(recipients: Array<MintRecipient>, tokenID: TokenID): ErrorCode {
     // 1. 参数验证
     if (!this.validateBatchMintParams(recipients, tokenID)) {
       return ErrorCode.ERROR_INVALID_PARAMS;
     }
 
     // 2. 构建批量输出项
-    const items = new Array<{recipient: Address; amount: u64; tokenID: string | null}>();
+    const items = new Array<BatchOutputItem>();
     for (let i = 0; i < recipients.length; i++) {
-      items.push({
-        recipient: recipients[i].address,
-        amount: recipients[i].amount,
-        tokenID: tokenID,
-      });
+      items.push(new BatchOutputItem(recipients[i].address, recipients[i].amount, tokenID));
     }
 
     // 3. 批量创建输出
     const count = HostABI.batchCreateOutputsSimple(items);
-    if (count === 0xFFFFFFFF) {
+    if (count === 0xffffffff) {
       return ErrorCode.ERROR_EXECUTION_FAILED;
     }
 
@@ -360,7 +337,7 @@ export class Token {
     }
 
     const event = JSON.stringify({
-      name: 'BatchMint',
+      name: "BatchMint",
       minter: this.addressToBase58(caller),
       token_id: tokenID,
       recipient_count: recipients.length.toString(),
@@ -376,11 +353,7 @@ export class Token {
   /**
    * 验证转账参数
    */
-  private static validateTransferParams(
-    from: Address,
-    to: Address,
-    amount: Amount
-  ): bool {
+  private static validateTransferParams(from: Address, to: Address, amount: Amount): bool {
     // 验证地址不为空
     if (from.length === 0 || to.length === 0) {
       return false;
@@ -402,11 +375,7 @@ export class Token {
   /**
    * 验证铸造参数
    */
-  private static validateMintParams(
-    to: Address,
-    tokenID: TokenID,
-    amount: Amount
-  ): bool {
+  private static validateMintParams(to: Address, tokenID: TokenID, amount: Amount): bool {
     // 验证地址不为空
     if (to.length === 0) {
       return false;
@@ -428,11 +397,7 @@ export class Token {
   /**
    * 验证销毁参数
    */
-  private static validateBurnParams(
-    from: Address,
-    tokenID: TokenID,
-    amount: Amount
-  ): bool {
+  private static validateBurnParams(from: Address, tokenID: TokenID, amount: Amount): bool {
     // 验证地址不为空
     if (from.length === 0) {
       return false;
@@ -475,7 +440,7 @@ export class Token {
     const base58 = HostABI.addressBytesToBase58(address);
     if (base58 === null) {
       // 如果编码失败，回退到十六进制编码（用于调试）
-      let hex = '';
+      let hex = "";
       for (let i = 0; i < address.length; i++) {
         const byte = address[i];
         hex += (byte >> 4).toString(16);
@@ -533,8 +498,13 @@ export class Token {
     spender: Address,
     tokenID: TokenID
   ): Uint8Array {
-    const stateIDStr = 'approve:' + this.addressToString(owner) + ':' + 
-                      this.addressToString(spender) + ':' + tokenID;
+    const stateIDStr =
+      "approve:" +
+      this.addressToString(owner) +
+      ":" +
+      this.addressToString(spender) +
+      ":" +
+      tokenID;
     return Uint8Array.wrap(String.UTF8.encode(stateIDStr));
   }
 
@@ -562,11 +532,7 @@ export class Token {
   /**
    * 验证冻结参数
    */
-  private static validateFreezeParams(
-    target: Address,
-    tokenID: TokenID,
-    amount: Amount
-  ): bool {
+  private static validateFreezeParams(target: Address, tokenID: TokenID, amount: Amount): bool {
     // 验证地址不为空
     if (target.length === 0) {
       return false;
@@ -588,11 +554,8 @@ export class Token {
   /**
    * 构建冻结状态ID
    */
-  private static buildFreezeStateID(
-    target: Address,
-    tokenID: TokenID
-  ): Uint8Array {
-    const stateIDStr = 'freeze:' + this.addressToString(target) + ':' + tokenID;
+  private static buildFreezeStateID(target: Address, tokenID: TokenID): Uint8Array {
+    const stateIDStr = "freeze:" + this.addressToString(target) + ":" + tokenID;
     return Uint8Array.wrap(String.UTF8.encode(stateIDStr));
   }
 
@@ -659,10 +622,7 @@ export class Token {
   /**
    * 验证批量铸造参数
    */
-  private static validateBatchMintParams(
-    recipients: Array<MintRecipient>,
-    tokenID: TokenID
-  ): bool {
+  private static validateBatchMintParams(recipients: Array<MintRecipient>, tokenID: TokenID): bool {
     // 验证接收者列表
     if (recipients.length === 0) {
       return false;

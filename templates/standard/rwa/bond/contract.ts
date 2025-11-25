@@ -1,14 +1,11 @@
 /**
  * bond 代币化合约示例
  */
-import { Contract, Context, ErrorCode } from '../../../src/framework';
-import { HostABI } from '../../../src/runtime';
-import { Token } from '../../../src/helpers/token';
-import { Market } from '../../../src/helpers/market';
-import { Address, Amount, TokenID } from '../../../src/framework/types';
-import { findJSONField, parseUint64 } from '../../../src/framework/utils/json';
-import { ParsingUtils } from '../../../src/framework/utils/parsing';
-import { FormatUtils } from '../../../src/framework/utils/format';
+import { Contract, Context, ErrorCode, HostABI, Token, Market } from '@weisyn/contract-sdk-js/as';
+import { Address, Amount, TokenID } from '@weisyn/contract-sdk-js/as';
+import { findJSONField, parseUint64 } from '@weisyn/contract-sdk-js/as';
+import { ParsingUtils } from '@weisyn/contract-sdk-js/as';
+import { FormatUtils } from '@weisyn/contract-sdk-js/as';
 
 class bondContract extends Contract {
   onInit(params: Uint8Array): ErrorCode {

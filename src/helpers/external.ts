@@ -1,26 +1,26 @@
 /**
  * External 操作 Helper
- * 
+ *
  * 提供受控外部交互（ISPC）功能，用于调用外部 API 和查询外部数据库
  * 对标 Go SDK 的 helpers/external/
- * 
+ *
  * 参考: contract-sdk-go/helpers/external/
- * 
+ *
  * ISPC 创新：受控外部交互，替代传统预言机
  */
 
-import { HostABI } from '../runtime/abi';
-import { encode as base64Encode } from '../framework/utils/base64';
+import { HostABI } from "../runtime/abi";
+import { encode as base64Encode } from "../framework/utils/base64";
 
 /**
  * 证据类型（用于 ISPC 受控外部交互）
  */
 export interface Evidence {
-  apiSignature: Uint8Array | null;  // API 签名
-  responseHash: Uint8Array | null;  // 响应哈希
+  apiSignature: Uint8Array | null; // API 签名
+  responseHash: Uint8Array | null; // 响应哈希
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-  timestamp: u64 | null;             // 时间戳
-  nonce: Uint8Array | null;         // 随机数
+  timestamp: u64 | null; // 时间戳
+  nonce: Uint8Array | null; // 随机数
 }
 
 /**
@@ -42,7 +42,7 @@ export class External {
     evidence: Evidence | null
   ): string | null {
     // 1. 参数验证
-    if (url === '' || method === '') {
+    if (url === "" || method === "") {
       return null;
     }
 
@@ -81,12 +81,12 @@ export class External {
    * @returns API 响应数据（字节数组），失败返回 null
    */
   static validateAndQuery(
-    claimType: string,
+    _claimType: string,
     url: string,
     params: string,
     evidence: Evidence | null
   ): Uint8Array | null {
-    const method = 'POST'; // 默认使用 POST
+    const method = "POST"; // 默认使用 POST
     const responseJSON = this.callAPI(url, method, params, evidence);
     if (responseJSON === null) {
       return null;
@@ -104,14 +104,10 @@ export class External {
    * @param evidence 验证佐证
    * @returns 查询结果（JSON 字符串），失败返回 null
    */
-  static queryDatabase(
-    dbID: string,
-    query: string,
-    evidence: Evidence | null
-  ): string | null {
+  static queryDatabase(dbID: string, query: string, evidence: Evidence | null): string | null {
     // 构建数据库查询 URL（简化实现）
     const url = `database://${dbID}/query`;
-    return this.callAPI(url, 'POST', query, evidence);
+    return this.callAPI(url, "POST", query, evidence);
   }
 
   /**
@@ -124,7 +120,7 @@ export class External {
     claim += `,"url":"${this.escapeJSON(url)}"`;
     claim += `,"method":"${this.escapeJSON(method)}"`;
     claim += `,"params":${params}`;
-    claim += '}';
+    claim += "}";
     return claim;
   }
 
@@ -132,37 +128,37 @@ export class External {
    * 构建证据 JSON
    */
   private static buildEvidenceJSON(evidence: Evidence): string {
-    let json = '{';
+    let json = "{";
     let first = true;
 
     if (evidence.apiSignature !== null) {
-      if (!first) json += ',';
+      if (!first) json += ",";
       first = false;
       const sigBase64 = this.bytesToBase64(evidence.apiSignature);
       json += `"api_signature":"${sigBase64}"`;
     }
 
     if (evidence.responseHash !== null) {
-      if (!first) json += ',';
+      if (!first) json += ",";
       first = false;
       const hashBase64 = this.bytesToBase64(evidence.responseHash);
       json += `"response_hash":"${hashBase64}"`;
     }
 
     if (evidence.timestamp !== null) {
-      if (!first) json += ',';
+      if (!first) json += ",";
       first = false;
       json += `"timestamp":${evidence.timestamp.toString()}`;
     }
 
     if (evidence.nonce !== null) {
-      if (!first) json += ',';
+      if (!first) json += ",";
       first = false;
       const nonceBase64 = this.bytesToBase64(evidence.nonce);
       json += `"nonce":"${nonceBase64}"`;
     }
 
-    json += '}';
+    json += "}";
     return json;
   }
 
@@ -170,19 +166,24 @@ export class External {
    * 转义 JSON 字符串
    */
   private static escapeJSON(str: string): string {
-    let result = '';
+    let result = "";
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      if (char === 0x22) { // '"'
+      if (char === 0x22) {
+        // '"'
         result += '\\"';
-      } else if (char === 0x5C) { // '\'
-        result += '\\\\';
-      } else if (char === 0x0A) { // '\n'
-        result += '\\n';
-      } else if (char === 0x0D) { // '\r'
-        result += '\\r';
-      } else if (char === 0x09) { // '\t'
-        result += '\\t';
+      } else if (char === 0x5c) {
+        // '\'
+        result += "\\\\";
+      } else if (char === 0x0a) {
+        // '\n'
+        result += "\\n";
+      } else if (char === 0x0d) {
+        // '\r'
+        result += "\\r";
+      } else if (char === 0x09) {
+        // '\t'
+        result += "\\t";
       } else {
         result += String.fromCharCode(char);
       }
@@ -197,4 +198,3 @@ export class External {
     return base64Encode(bytes);
   }
 }
-

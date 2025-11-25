@@ -1,17 +1,26 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Host ABI TS 友好封装
- * 
+ *
  * 封装 Host ABI 函数，提供类型安全的 TypeScript API
  * 参考: contract-sdk-go/framework/hostabi.go
  */
 
-import * as env from './env';
-import { allocateString, allocateBytes, readString, readBytes } from './memory';
-import { Address, OutPoint, UTXO, OutputType, TxOutput, Resource, ResourceCategory } from '../framework/types';
+import * as env from "./env";
+import { allocateString, allocateBytes, readString, readBytes } from "./memory";
+import {
+  Address,
+  OutPoint,
+  UTXO,
+  OutputType,
+  TxOutput,
+  Resource,
+  ResourceCategory,
+  Hash,
+} from "../framework/types";
 // Note: findJSONField and parseUint64 are used in AssemblyScript runtime but TypeScript compiler cannot detect them
-import { findJSONField, extractJSONObject, parseUint64 } from '../framework/utils/json';
-import { decode as base64Decode, encode as base64Encode } from '../framework/utils/base64';
+import { findJSONField, extractJSONObject, parseUint64 } from "../framework/utils/json";
+import { decode as base64Decode, encode as base64Encode } from "../framework/utils/base64";
 /* eslint-enable @typescript-eslint/no-unused-vars */
 
 /**
@@ -36,7 +45,7 @@ export class HostABI {
   static checkABICompatibility(expectedVersion: u32): bool {
     const engineVersion = env.getABIVersion();
     // 主版本号必须相同
-    return (engineVersion >> 16) == (expectedVersion >> 16);
+    return engineVersion >> 16 == expectedVersion >> 16;
   }
 
   // ==================== 基础环境函数 ====================
@@ -291,13 +300,7 @@ export class HostABI {
       return null;
     }
 
-    const actualLen = env.utxoLookupJSON(
-      txIDPtr,
-      32,
-      outPoint.index,
-      outputPtr,
-      outputSize
-    );
+    const actualLen = env.utxoLookupJSON(txIDPtr, 32, outPoint.index, outputPtr, outputSize);
 
     if (actualLen === 0) {
       return null;
@@ -311,48 +314,48 @@ export class HostABI {
 
     // 解析 JSON 字符串
     const jsonStr = String.UTF8.decode(jsonBytes.buffer);
-    
+
     // 确定输出类型
     let outputType: OutputType = OutputType.ASSET; // 默认类型
-    if (findJSONField(jsonStr, 'asset') !== '') {
+    if (findJSONField(jsonStr, "asset") !== "") {
       outputType = OutputType.ASSET;
-    } else if (findJSONField(jsonStr, 'state') !== '') {
+    } else if (findJSONField(jsonStr, "state") !== "") {
       outputType = OutputType.STATE;
-    } else if (findJSONField(jsonStr, 'resource') !== '') {
+    } else if (findJSONField(jsonStr, "resource") !== "") {
       outputType = OutputType.RESOURCE;
     }
-    
+
     // 解析 owner 字段（地址）
-    const ownerStr = findJSONField(jsonStr, 'owner');
+    const ownerStr = findJSONField(jsonStr, "owner");
     let recipient: Address | null = null;
-    if (ownerStr !== '') {
+    if (ownerStr !== "") {
       // Base64 解码地址（protobuf JSON 使用 Base64 编码字节）
       const ownerBytes = base64Decode(ownerStr);
       if (ownerBytes.length >= 20) {
         recipient = ownerBytes.slice(0, 20);
       }
     }
-    
+
     // 解析 asset 字段（如果存在）
     let amount: u64 = 0;
     let tokenID: string | null = null;
     if (outputType === OutputType.ASSET) {
-      const assetJSON = extractJSONObject(jsonStr, 'asset');
-      if (assetJSON !== '') {
+      const assetJSON = extractJSONObject(jsonStr, "asset");
+      if (assetJSON !== "") {
         // 解析 amount
-        const amountStr = findJSONField(assetJSON, 'amount');
-        if (amountStr !== '') {
+        const amountStr = findJSONField(assetJSON, "amount");
+        if (amountStr !== "") {
           amount = parseUint64(amountStr);
         }
-        
+
         // 解析 tokenId
-        const tokenIDStr = findJSONField(assetJSON, 'tokenId');
-        if (tokenIDStr !== '') {
+        const tokenIDStr = findJSONField(assetJSON, "tokenId");
+        if (tokenIDStr !== "") {
           tokenID = tokenIDStr;
         }
       }
     }
-    
+
     // 构造 UTXO 对象
     const output = new TxOutput(
       outputType,
@@ -361,7 +364,7 @@ export class HostABI {
       tokenID,
       jsonBytes // 保存原始 JSON 数据
     );
-    
+
     return new UTXO(outPoint, output);
   }
 
@@ -389,14 +392,10 @@ export class HostABI {
    * @param tokenID 代币ID（可选）
    * @returns 输出索引，失败返回 0xFFFFFFFF
    */
-  static createUTXOOutput(
-    recipient: Address,
-    amount: u64,
-    tokenID: string | null
-  ): u32 {
+  static createUTXOOutput(recipient: Address, amount: u64, tokenID: string | null): u32 {
     const recipientPtr = allocateBytes(recipient);
     if (recipientPtr === 0) {
-      return 0xFFFFFFFF;
+      return 0xffffffff;
     }
 
     let tokenIDPtr: u32 = 0;
@@ -431,12 +430,12 @@ export class HostABI {
   ): u32 {
     const stateIDPtr = allocateBytes(stateID);
     if (stateIDPtr === 0) {
-      return 0xFFFFFFFF;
+      return 0xffffffff;
     }
 
     const execHashPtr = allocateBytes(execHash);
     if (execHashPtr === 0) {
-      return 0xFFFFFFFF;
+      return 0xffffffff;
     }
 
     let publicInputsPtr: u32 = 0;
@@ -482,17 +481,17 @@ export class HostABI {
   ): u32 {
     const resourcePtr = allocateBytes(resource);
     if (resourcePtr === 0) {
-      return 0xFFFFFFFF;
+      return 0xffffffff;
     }
 
     const ownerPtr = allocateBytes(owner);
     if (ownerPtr === 0) {
-      return 0xFFFFFFFF;
+      return 0xffffffff;
     }
 
     let lockingPtr: u32 = 0;
     let lockingLen: u32 = 0;
-    if (lockingConditions !== null && lockingConditions !== '') {
+    if (lockingConditions !== null && lockingConditions !== "") {
       const ptr = allocateString(lockingConditions);
       if (ptr !== 0) {
         lockingPtr = ptr;
@@ -526,7 +525,7 @@ export class HostABI {
   ): u32 {
     const recipientPtr = allocateBytes(recipient);
     if (recipientPtr === 0) {
-      return 0xFFFFFFFF;
+      return 0xffffffff;
     }
 
     let tokenIDPtr: u32 = 0;
@@ -541,7 +540,7 @@ export class HostABI {
 
     let lockingPtr: u32 = 0;
     let lockingLen: u32 = 0;
-    if (lockingConditions !== null && lockingConditions !== '') {
+    if (lockingConditions !== null && lockingConditions !== "") {
       const ptr = allocateString(lockingConditions);
       if (ptr !== 0) {
         lockingPtr = ptr;
@@ -561,29 +560,47 @@ export class HostABI {
   }
 
   /**
+   * 批量创建资产输出的输入项
+   *
+   * 单独定义类型而不是使用内联对象类型，避免 AssemblyScript
+   * 在解析 `Array<{ ... }>` 这类语法时出现兼容性问题。
+   */
+  export class BatchOutputItem {
+    recipient: Address;
+    amount: u64;
+    tokenID: string | null;
+
+    constructor(recipient: Address, amount: u64, tokenID: string | null) {
+      this.recipient = recipient;
+      this.amount = amount;
+      this.tokenID = tokenID;
+    }
+  }
+
+  /**
    * 批量创建资产输出（简化版）
    * @param items 输出项列表，每个项包含 recipient、amount、tokenID
    * @returns 成功创建的输出数量，失败返回 0xFFFFFFFF
    */
-  static batchCreateOutputsSimple(items: Array<{recipient: Address; amount: u64; tokenID: string | null}>): u32 {
+  static batchCreateOutputsSimple(items: Array<BatchOutputItem>): u32 {
     if (items.length === 0) {
-      return 0xFFFFFFFF;
+      return 0xffffffff;
     }
 
     // 构造批量输出 JSON（手动序列化避免引入完整 JSON 库）
-    let batchJSON = '[';
+    let batchJSON = "[";
     for (let i = 0; i < items.length; i++) {
       if (i > 0) {
-        batchJSON += ',';
+        batchJSON += ",";
       }
       const item = items[i];
-      
+
       // Base64 编码地址
       const recipientBase64 = base64Encode(item.recipient);
-      
+
       batchJSON += `{"recipient":"${recipientBase64}","amount":${item.amount}`;
-      
-      if (item.tokenID !== null && item.tokenID !== '') {
+
+      if (item.tokenID !== null && item.tokenID !== "") {
         // Base64 编码 TokenID
         const tokenIDBytes = String.UTF8.encode(item.tokenID);
         const tokenIDBase64 = base64Encode(Uint8Array.wrap(tokenIDBytes));
@@ -591,16 +608,16 @@ export class HostABI {
       } else {
         batchJSON += `,"token_id":null`;
       }
-      
+
       batchJSON += `,"locking_conditions":[]}`;
     }
-    batchJSON += ']';
+    batchJSON += "]";
 
     // 分配内存并写入 JSON
     const jsonBytes = String.UTF8.encode(batchJSON);
     const batchPtr = allocateBytes(Uint8Array.wrap(jsonBytes));
     if (batchPtr === 0) {
-      return 0xFFFFFFFF;
+      return 0xffffffff;
     }
 
     // 调用宿主函数
@@ -648,12 +665,7 @@ export class HostABI {
       return null;
     }
 
-    const actualLen = env.resourceLookupJSON(
-      contentHashPtr,
-      32,
-      resourcePtr,
-      resourceSize
-    );
+    const actualLen = env.resourceLookupJSON(contentHashPtr, 32, resourcePtr, resourceSize);
 
     if (actualLen === 0) {
       return null;
@@ -667,24 +679,24 @@ export class HostABI {
 
     // 解析 JSON 字符串
     const jsonStr = String.UTF8.decode(jsonBytes.buffer);
-    
+
     // 解析 category 字段
-    const categoryStr = findJSONField(jsonStr, 'category');
+    const categoryStr = findJSONField(jsonStr, "category");
     let category: ResourceCategory = ResourceCategory.STATIC; // 默认类别
-    if (categoryStr === 'EXECUTABLE' || categoryStr === '1') {
+    if (categoryStr === "EXECUTABLE" || categoryStr === "1") {
       category = ResourceCategory.EXECUTABLE;
     }
-    
+
     // 解析 mimeType 字段
-    const mimeType = findJSONField(jsonStr, 'mimeType');
-    
+    const mimeType = findJSONField(jsonStr, "mimeType");
+
     // 解析 size 字段
-    const sizeStr = findJSONField(jsonStr, 'size');
+    const sizeStr = findJSONField(jsonStr, "size");
     let size: u64 = 0;
-    if (sizeStr !== '') {
+    if (sizeStr !== "") {
       size = parseUint64(sizeStr);
     }
-    
+
     return new Resource(contentHash, category, mimeType, size);
   }
 
@@ -728,21 +740,21 @@ export class HostABI {
 
   /**
    * 从链上查询历史状态
-   * 
+   *
    * 🎯 **用途**：查询链上已确认交易中的 StateOutput，返回匹配 stateID 的最新状态值和版本号
-   * 
+   *
    * **参数**：
    *   - stateID: 状态ID（字符串）
-   * 
+   *
    * **返回**：
    *   - value: 状态值（executionResultHash），如果不存在返回 null
    *   - version: 状态版本号，如果不存在返回 0
-   * 
+   *
    * **注意**：
    *   - 查询链上已确认的历史状态，不是当前交易草稿中的状态
    *   - 从链尖向后查找最近100个区块
    *   - 返回版本号最高的状态值
-   * 
+   *
    * **示例**：
    * ```typescript
    * const stateID = 'vote:address1:proposal_001';
@@ -780,7 +792,7 @@ export class HostABI {
       const versionBytes = readBytes(versionPtr, 8);
       let version: u64 = 0;
       for (let i = 0; i < 8; i++) {
-        version = version | (<u64>versionBytes[i] << (i * 8));
+        version = version | ((<u64>versionBytes[i]) << (i * 8));
       }
       return { value, version };
     }
@@ -857,12 +869,7 @@ export class HostABI {
       return null;
     }
 
-    const actualLen = env.hostDeclareExternalState(
-      claimPtr,
-      claimLen,
-      claimIDPtr,
-      claimIDSize
-    );
+    const actualLen = env.hostDeclareExternalState(claimPtr, claimLen, claimIDPtr, claimIDSize);
 
     if (actualLen === 0) {
       return null;
@@ -890,12 +897,7 @@ export class HostABI {
     }
     const evidenceLen = String.UTF8.byteLength(evidence);
 
-    const result = env.hostProvideEvidence(
-      claimIDPtr,
-      claimIDLen,
-      evidencePtr,
-      evidenceLen
-    );
+    const result = env.hostProvideEvidence(claimIDPtr, claimIDLen, evidencePtr, evidenceLen);
 
     return result === 1;
   }
@@ -918,12 +920,7 @@ export class HostABI {
       return null;
     }
 
-    const actualLen = env.hostQueryControlledState(
-      claimIDPtr,
-      claimIDLen,
-      resultPtr,
-      resultSize
-    );
+    const actualLen = env.hostQueryControlledState(claimIDPtr, claimIDLen, resultPtr, resultSize);
 
     if (actualLen === 0) {
       return null;

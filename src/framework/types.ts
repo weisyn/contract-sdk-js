@@ -1,6 +1,6 @@
 /**
  * Framework 层基础类型定义
- * 
+ *
  * 对标 Go SDK 的 framework/types.go 和 framework/contract_base.go
  */
 
@@ -64,8 +64,8 @@ export class StateResult {
 
 /** UTXO 引用点 */
 export class OutPoint {
-  txHash: Hash;  // 32字节交易哈希
-  index: u32;    // 输出索引
+  txHash: Hash; // 32字节交易哈希
+  index: u32; // 输出索引
 
   constructor(txHash: Hash, index: u32) {
     this.txHash = txHash;
@@ -83,10 +83,10 @@ export enum OutputType {
 /** 交易输出 */
 export class TxOutput {
   type: OutputType;
-  recipient: Address | null;  // 接收者地址（仅asset类型）
-  amount: Amount;              // 金额（仅asset类型）
-  tokenID: TokenID | null;     // 代币ID（仅asset类型）
-  data: Uint8Array;            // 其他数据
+  recipient: Address | null; // 接收者地址（仅asset类型）
+  amount: Amount; // 金额（仅asset类型）
+  tokenID: TokenID | null; // 代币ID（仅asset类型）
+  data: Uint8Array; // 其他数据
 
   constructor(
     type: OutputType,
@@ -124,15 +124,15 @@ export enum ResourceCategory {
 
 /** Resource（资源） */
 export class Resource {
-  contentHash: Hash;        // 32字节内容哈希
+  contentHash: Hash; // 32字节内容哈希
   category: ResourceCategory; // 资源类别
-  mimeType: string;         // MIME 类型
-  size: u64;                // 资源大小（字节）
+  mimeType: string; // MIME 类型
+  size: u64; // 资源大小（字节）
 
   constructor(
     contentHash: Hash,
     category: ResourceCategory = ResourceCategory.STATIC,
-    mimeType: string = '',
+    mimeType: string = "",
     size: u64 = 0
   ) {
     this.contentHash = contentHash;
@@ -174,7 +174,7 @@ export enum IntentType {
 export class IntentDescriptor {
   intentType: IntentType;
   from: Address;
-  to: Address | null;      // transfer 需要
+  to: Address | null; // transfer 需要
   tokenID: TokenID | null; // transfer 需要
   amount: Amount;
   validator: Address | null; // stake 需要
