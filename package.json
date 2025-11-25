@@ -1,6 +1,6 @@
 {
   "name": "@weisyn/contract-sdk-js",
-  "version": "0.1.1-alpha",
+  "version": "0.1.0-alpha",
   "description": "WES 智能合约 SDK for TypeScript/AssemblyScript - 支持使用 TS/AS 编写合约并编译为 WASM",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -29,7 +29,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:unit": "jest tests/unit --passWithNoTests",
+    "test:unit": "jest --testPathPattern='tests/(unit|framework|helpers|runtime)' --passWithNoTests --no-coverage",
     "test:integration": "jest tests/integration",
     "compile:verify": "asc --version && echo 'AssemblyScript compiler available'",
     "lint": "eslint src --ext .ts",
