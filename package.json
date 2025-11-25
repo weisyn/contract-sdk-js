@@ -29,7 +29,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:unit": "jest --testPathPattern='tests/(unit|framework|helpers|runtime)' --passWithNoTests --no-coverage",
+    "test:unit": "jest --testPathPattern='tests/(unit|framework)' --testPathIgnorePatterns='tests/(helpers|runtime)' --passWithNoTests --no-coverage",
     "test:integration": "jest tests/integration",
     "compile:verify": "asc --version && echo 'AssemblyScript compiler available'",
     "lint": "eslint src --ext .ts",
