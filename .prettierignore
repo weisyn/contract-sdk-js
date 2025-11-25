@@ -1,0 +1,4 @@
+# Ignore AssemblyScript host ABI declarations that use non-TypeScript decorator syntax
+src/runtime/env.ts
+
+

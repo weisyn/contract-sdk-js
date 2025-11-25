@@ -1,0 +1,48 @@
+# Source files (only include dist/)
+src/
+tests/
+tools/
+
+# Development files
+*.ts
+!*.d.ts
+tsconfig.json
+tsconfig.test.json
+jest.config.js
+rollup.config.js
+# Note: asconfig.json is included in package.json "files", so don't exclude it here
+
+# Development directory (contains dev docs, version history, etc.)
+_dev/
+_dev_old/
+.dev/
+
+# Documentation (keep README.md and LICENSE)
+docs/
+CHANGELOG.md
+
+# Contract templates (not needed in npm package)
+templates/
+build/
+
+# CI/CD
+.github/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+

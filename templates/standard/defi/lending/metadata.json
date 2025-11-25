@@ -1,0 +1,132 @@
+{
+  "id": "lending",
+  "name": "lending",
+  "category": "DeFi",
+  "description": "lending 合约，实现相关 DeFi 功能",
+  "tags": [
+    "standard",
+    "defi",
+    "lending"
+  ],
+  "parameters": [],
+  "risks": [],
+  "prerequisites": [
+    "了解 TypeScript/AssemblyScript 基础语法",
+    "了解 WES 合约基本概念",
+    "了解 DeFi 的基本概念"
+  ],
+  "examples": [
+    "wes contract deploy contract.wasm --function Initialize"
+  ],
+  "codePreview": "const result = Token.transfer(...);",
+  "sourcePath": "contract.ts",
+  "version": "1.0.0",
+  "author": "WES Contract SDK Team",
+  "license": "MIT",
+  "language": "typescript",
+  "level": "standard",
+  "helpers": [
+    "token",
+    "market"
+  ],
+  "methods": [
+    {
+      "name": "Initialize",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "初始化合约",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Deposit",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "代币ID"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "存款数量"
+        }
+      ],
+      "returnType": "number",
+      "description": "存入代币作为抵押品，获得存款凭证代币",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Borrow",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "代币ID"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "借款数量"
+        }
+      ],
+      "returnType": "number",
+      "description": "使用抵押品借出代币",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Repay",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "代币ID"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "还款数量"
+        }
+      ],
+      "returnType": "number",
+      "description": "偿还借款本金和利息，释放抵押品",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "Withdraw",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": true,
+          "description": "代币ID"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "取款数量"
+        }
+      ],
+      "returnType": "number",
+      "description": "取出存款和收益",
+      "isReferenceOnly": false
+    }
+  ],
+  "sdkCompatibility": {
+    "js": ">=0.1.0-alpha <0.2.0"
+  },
+  "sinceSdk": {
+    "js": "0.1.0-alpha"
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "id": "vesting",
+  "name": "Vesting",
+  "category": "Market",
+  "description": "分阶段释放合约，实现代币的分阶段解锁和释放功能",
+  "tags": [
+    "standard",
+    "market",
+    "vesting",
+    "release"
+  ],
+  "parameters": [],
+  "risks": [],
+  "prerequisites": [
+    "了解 TypeScript/AssemblyScript 基础语法",
+    "了解 WES 合约基本概念",
+    "了解分阶段释放的基本概念"
+  ],
+  "examples": [
+    "wes contract deploy contract.wasm --function Initialize",
+    "wes contract call <contract_address> --function CreateVesting --params '{\"beneficiary\":\"...\",\"total_amount\":1000000,\"vesting_id\":\"vesting_001\"}'"
+  ],
+  "codePreview": "const result = Market.release(vestingID, totalAmount, tokenID);\nif (result !== ErrorCode.SUCCESS) {\n  return result;\n}",
+  "sourcePath": "contract.ts",
+  "version": "1.0.0",
+  "author": "WES Contract SDK Team",
+  "license": "MIT",
+  "language": "typescript",
+  "level": "standard",
+  "helpers": [
+    "market"
+  ],
+  "methods": [
+    {
+      "name": "Initialize",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "初始化合约",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "CreateVesting",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "beneficiary",
+          "type": "address",
+          "required": true,
+          "description": "受益人地址"
+        },
+        {
+          "name": "token_id",
+          "type": "string",
+          "required": false,
+          "description": "代币ID"
+        },
+        {
+          "name": "total_amount",
+          "type": "number",
+          "required": true,
+          "description": "总释放金额"
+        },
+        {
+          "name": "vesting_id",
+          "type": "string",
+          "required": true,
+          "description": "释放计划ID"
+        },
+        {
+          "name": "start_time",
+          "type": "number",
+          "required": false,
+          "description": "开始时间（Unix时间戳）"
+        },
+        {
+          "name": "duration",
+          "type": "number",
+          "required": false,
+          "description": "释放期限（秒）"
+        }
+      ],
+      "returnType": "number",
+      "description": "创建分阶段释放计划",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "ClaimVesting",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "vesting_id",
+          "type": "string",
+          "required": true,
+          "description": "释放计划ID"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "领取数量"
+        }
+      ],
+      "returnType": "number",
+      "description": "领取已解锁的代币",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "QueryVesting",
+      "type": "read",
+      "parameters": [
+        {
+          "name": "vesting_id",
+          "type": "string",
+          "required": true,
+          "description": "释放计划ID"
+        }
+      ],
+      "returnType": "string",
+      "description": "查询释放计划的详细信息",
+      "isReferenceOnly": true
+    }
+  ],
+  "sdkCompatibility": {
+    "js": ">=0.1.0-alpha <0.2.0"
+  },
+  "sinceSdk": {
+    "js": "0.1.0-alpha"
+  }
+}

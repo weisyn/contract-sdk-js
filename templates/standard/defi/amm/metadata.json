@@ -1,0 +1,144 @@
+{
+  "id": "amm",
+  "name": "AMM",
+  "category": "DeFi",
+  "description": "AMM（自动化做市商）合约，实现代币交换和流动性管理",
+  "tags": [
+    "standard",
+    "defi",
+    "amm",
+    "swap",
+    "liquidity"
+  ],
+  "parameters": [],
+  "risks": [],
+  "prerequisites": [
+    "了解 TypeScript/AssemblyScript 基础语法",
+    "了解 WES 合约基本概念",
+    "了解 DeFi 和 AMM 的基本概念"
+  ],
+  "examples": [
+    "wes contract deploy contract.wasm --function Initialize",
+    "wes contract call <contract_address> --function AddLiquidity --params '{\"token_a_id\":\"TOKEN_A\",\"token_b_id\":\"TOKEN_B\",\"amount_a\":1000,\"amount_b\":2000}'"
+  ],
+  "codePreview": "const result = Token.transfer(caller, contractAddr, amountA, tokenAID);",
+  "sourcePath": "contract.ts",
+  "version": "1.0.0",
+  "author": "WES Contract SDK Team",
+  "license": "MIT",
+  "language": "typescript",
+  "level": "standard",
+  "helpers": [
+    "token",
+    "market"
+  ],
+  "methods": [
+    {
+      "name": "Initialize",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "初始化合约",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "AddLiquidity",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "token_a_id",
+          "type": "string",
+          "required": true,
+          "description": "代币A ID"
+        },
+        {
+          "name": "token_b_id",
+          "type": "string",
+          "required": true,
+          "description": "代币B ID"
+        },
+        {
+          "name": "amount_a",
+          "type": "number",
+          "required": true,
+          "description": "代币A数量"
+        },
+        {
+          "name": "amount_b",
+          "type": "number",
+          "required": true,
+          "description": "代币B数量"
+        }
+      ],
+      "returnType": "number",
+      "description": "向流动性池添加代币对，获得LP Token",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "RemoveLiquidity",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "token_a_id",
+          "type": "string",
+          "required": true,
+          "description": "代币A ID"
+        },
+        {
+          "name": "token_b_id",
+          "type": "string",
+          "required": true,
+          "description": "代币B ID"
+        },
+        {
+          "name": "lp_token_amount",
+          "type": "number",
+          "required": true,
+          "description": "LP Token数量"
+        }
+      ],
+      "returnType": "number",
+      "description": "从流动性池移除代币对，销毁LP Token",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "SwapTokens",
+      "type": "write",
+      "parameters": [
+        {
+          "name": "token_in_id",
+          "type": "string",
+          "required": true,
+          "description": "输入代币ID"
+        },
+        {
+          "name": "token_out_id",
+          "type": "string",
+          "required": true,
+          "description": "输出代币ID"
+        },
+        {
+          "name": "amount_in",
+          "type": "number",
+          "required": true,
+          "description": "输入数量"
+        },
+        {
+          "name": "min_amount_out",
+          "type": "number",
+          "required": true,
+          "description": "最小输出数量"
+        }
+      ],
+      "returnType": "number",
+      "description": "使用恒定乘积公式进行代币交换",
+      "isReferenceOnly": false
+    }
+  ],
+  "sdkCompatibility": {
+    "js": ">=0.1.0-alpha <0.2.0"
+  },
+  "sinceSdk": {
+    "js": "0.1.0-alpha"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "methods": [
+    {
+      "name": "Initialize",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "初始化合约",
+      "isReferenceOnly": false
+    },
+    {
+      "name": "SayHello",
+      "type": "write",
+      "parameters": [],
+      "returnType": "number",
+      "description": "问候调用者，返回个性化消息",
+      "isReferenceOnly": false
+    }
+  ],
+  "version": "1.0.0"
+}
