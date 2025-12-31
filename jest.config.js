@@ -37,4 +37,5 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  setupFilesAfterEnv: hasTestsDir ? ['<rootDir>/tests/setup/mock-assemblyscript.ts'] : [],
 };

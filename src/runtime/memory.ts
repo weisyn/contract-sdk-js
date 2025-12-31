@@ -19,7 +19,13 @@ export function allocateString(str: string): u32 {
     return 0;
   }
   // AssemblyScript: memory.copy(dest, src, size)
-  memory.copy(ptr, changetype<usize>(utf8), utf8.byteLength);
+  // 兼容 Node.js 测试环境
+  if (typeof (global as any).memory !== 'undefined') {
+    // 在 Node.js 环境中，utf8 是 Uint8Array，直接传递
+    (global as any).memory.copy(ptr, utf8, utf8.byteLength);
+  } else {
+    memory.copy(ptr, changetype<usize>(utf8), utf8.byteLength);
+  }
   return ptr;
 }
 
@@ -34,7 +40,13 @@ export function allocateBytes(bytes: Uint8Array): u32 {
     return 0;
   }
   // AssemblyScript: memory.copy(dest, src, size)
-  memory.copy(ptr, changetype<usize>(bytes.buffer), bytes.length);
+  // 兼容 Node.js 测试环境
+  if (typeof (global as any).memory !== 'undefined') {
+    // 在 Node.js 环境中，直接传递 Uint8Array
+    (global as any).memory.copy(ptr, bytes, bytes.length);
+  } else {
+    memory.copy(ptr, changetype<usize>(bytes.buffer), bytes.length);
+  }
   return ptr;
 }
 
@@ -50,7 +62,13 @@ export function readString(ptr: u32, len: u32): string {
   }
   const buffer = new Uint8Array(len);
   // AssemblyScript: memory.copy(dest, src, size)
-  memory.copy(changetype<usize>(buffer.buffer), ptr, len);
+  // 兼容 Node.js 测试环境
+  if (typeof (global as any).memory !== 'undefined') {
+    // 在 Node.js 环境中，buffer 是 Uint8Array，直接传递
+    (global as any).memory.copy(buffer, ptr, len);
+  } else {
+    memory.copy(changetype<usize>(buffer.buffer), ptr, len);
+  }
   return String.UTF8.decode(buffer.buffer);
 }
 
@@ -66,6 +84,12 @@ export function readBytes(ptr: u32, len: u32): Uint8Array {
   }
   const buffer = new Uint8Array(len);
   // AssemblyScript: memory.copy(dest, src, size)
-  memory.copy(changetype<usize>(buffer.buffer), ptr, len);
+  // 兼容 Node.js 测试环境
+  if (typeof (global as any).memory !== 'undefined') {
+    // 在 Node.js 环境中，buffer 是 Uint8Array，直接传递
+    (global as any).memory.copy(buffer, ptr, len);
+  } else {
+    memory.copy(changetype<usize>(buffer.buffer), ptr, len);
+  }
   return buffer;
 }

@@ -66,28 +66,40 @@ export function decode(encoded: string): Uint8Array {
   while (i < encoded.length) {
     // 读取 4 个字符
     const char1 = encoded.charCodeAt(i++);
-    const char2 = i < encoded.length ? encoded.charCodeAt(i++) : 0;
-    const char3 = i < encoded.length ? encoded.charCodeAt(i++) : 0;
-    const char4 = i < encoded.length ? encoded.charCodeAt(i++) : 0;
+    const hasChar2 = i < encoded.length;
+    const char2 = hasChar2 ? encoded.charCodeAt(i++) : 0;
+    const hasChar3 = i < encoded.length;
+    const char3 = hasChar3 ? encoded.charCodeAt(i++) : 0;
+    const hasChar4 = i < encoded.length;
+    const char4 = hasChar4 ? encoded.charCodeAt(i++) : 0;
 
     // 转换为索引
     const index1 = BASE64_CHARS.indexOf(String.fromCharCode(char1));
-    const index2 = char2 > 0 ? BASE64_CHARS.indexOf(String.fromCharCode(char2)) : 0;
-    const index3 = char3 > 0 ? BASE64_CHARS.indexOf(String.fromCharCode(char3)) : 0;
-    const index4 = char4 > 0 ? BASE64_CHARS.indexOf(String.fromCharCode(char4)) : 0;
+    const index2 = hasChar2 && char2 > 0 ? BASE64_CHARS.indexOf(String.fromCharCode(char2)) : 0;
+    const index3 = hasChar3 && char3 > 0 ? BASE64_CHARS.indexOf(String.fromCharCode(char3)) : 0;
+    const index4 = hasChar4 && char4 > 0 ? BASE64_CHARS.indexOf(String.fromCharCode(char4)) : 0;
 
     // 组合成 24 位
     const combined = (index1 << 18) | (index2 << 12) | (index3 << 6) | index4;
 
-    // 提取 3 个字节
+    // 提取字节（根据实际字符数决定提取多少字节）
+    // 第一个字节总是存在
     result.push((combined >> 16) & 0xff);
-    if (char2 > 0) {
+    // 第二个字节：如果有 char2 且不是填充字符
+    if (hasChar2 && char2 > 0) {
       result.push((combined >> 8) & 0xff);
-    }
-    if (char3 > 0) {
-      result.push(combined & 0xff);
+      // 第三个字节：如果有 char3 且不是填充字符
+      if (hasChar3 && char3 > 0) {
+        result.push(combined & 0xff);
+      }
     }
   }
 
-  return Uint8Array.wrap(result);
+  // 兼容 AssemblyScript 和 Node.js 环境
+  // @ts-ignore - AssemblyScript 特定 API
+  if (typeof Uint8Array.wrap === 'function') {
+    return Uint8Array.wrap(result);
+  }
+  // Node.js 环境：直接创建 Uint8Array
+  return new Uint8Array(result);
 }

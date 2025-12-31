@@ -59,7 +59,19 @@ export class NFT {
       }
     }
 
-    // 5. 发出 NFT 铸造事件
+    // 5. 记录 NFT 所有权状态（使用 StateOutput）
+    {
+      const ownerStateID = this.buildOwnerStateID(tokenID);
+      const ownerHash = this.computeOwnerHash(ownerStateID, to);
+      const ownerBuilder = TransactionBuilder.begin();
+      ownerBuilder.addStateOutput(ownerStateID, 1, ownerHash);
+      const ownerResult = ownerBuilder.finalize();
+      if (!ownerResult.success) {
+        return ownerResult.errorCode;
+      }
+    }
+
+    // 6. 发出 NFT 铸造事件
     const caller = Context.getCaller();
     const eventData: Record<string, string> = {
       name: "NFTMint",
@@ -101,10 +113,25 @@ export class NFT {
       return ErrorCode.ERROR_UNAUTHORIZED;
     }
 
-    // 4. 在EUTXO模型中，所有权通过UTXO转移来更新
-    // token.Transfer已经完成了所有权的转移，不需要额外的状态更新
+    // 4. 使用 Token.transfer 转移 NFT（数量为 1）
+    const transferResult = Token.transfer(from, to, 1, tokenID);
+    if (transferResult !== ErrorCode.SUCCESS) {
+      return transferResult;
+    }
 
-    // 5. 发出 NFT 转移事件
+    // 5. 更新 NFT 所有权状态（使用 StateOutput）
+    {
+      const ownerStateID = this.buildOwnerStateID(tokenID);
+      const ownerHash = this.computeOwnerHash(ownerStateID, to);
+      const ownerBuilder = TransactionBuilder.begin();
+      ownerBuilder.addStateOutput(ownerStateID, 1, ownerHash);
+      const ownerResult = ownerBuilder.finalize();
+      if (!ownerResult.success) {
+        return ownerResult.errorCode;
+      }
+    }
+
+    // 6. 发出 NFT 转移事件
     const event = JSON.stringify({
       name: "NFTTransfer",
       from: this.addressToBase58(from),
@@ -127,25 +154,17 @@ export class NFT {
       return null;
     }
 
-    // 在EUTXO模型中，NFT所有权通过查询UTXO余额来确定
-    // 如果某个地址对某个tokenID的余额为1，则该地址拥有该NFT
-    //
-    // 注意：这是一个简化实现
-    // 实际应用中，NFT所有权应该通过StateOutput或索引来管理
-    // 当前实现仅作为示例，实际应该使用更高效的查询方式
-    //
-    // 返回null表示NFT不存在或无法确定所有者
-    // 实际应用中应该实现完整的查询逻辑（如通过索引服务）
-
-    // TODO: 实现完整的查询逻辑
-    // 当前实现：查询调用者地址的余额
-    const caller = Context.getCaller();
-    const balance = HostABI.queryUTXOBalance(caller, tokenID);
-    if (balance === 1) {
-      return caller;
+    // 构建所有权状态ID
+    const ownerStateIDStr = `nft_owner:${tokenID}`;
+    
+    // 查询链上状态
+    const stateResult = Storage.getFromChain(ownerStateIDStr);
+    if (stateResult === null || stateResult.value.length === 0) {
+      return null;
     }
-
-    return null;
+    
+    // 返回所有者地址（stateResult.value 包含地址字节）
+    return stateResult.value;
   }
 
   /**
@@ -154,8 +173,18 @@ export class NFT {
    * @returns 元数据，如果不存在返回 null
    */
   static getMetadata(tokenID: TokenID): Uint8Array | null {
-    const metadataKey = `nft_metadata_${tokenID}`;
-    return Storage.get(metadataKey);
+    // 参数验证
+    if (tokenID.length === 0) {
+      return null;
+    }
+    
+    const metadataKey = `nft_metadata:${tokenID}`;
+    // 使用 getFromChain 查询链上状态
+    const stateResult = Storage.getFromChain(metadataKey);
+    if (stateResult === null || stateResult.value.length === 0) {
+      return null;
+    }
+    return stateResult.value;
   }
 
   // ==================== 私有辅助方法 ====================
@@ -229,7 +258,7 @@ export class NFT {
    * @returns 状态ID字节数组
    */
   private static buildMetadataStateID(tokenID: TokenID): Uint8Array {
-    const stateIDStr = `nft_metadata_${tokenID}`;
+    const stateIDStr = `nft_metadata:${tokenID}`;
     return Uint8Array.wrap(String.UTF8.encode(stateIDStr));
   }
 
@@ -244,6 +273,32 @@ export class NFT {
     const combined = new Uint8Array(stateID.length + metadata.length);
     combined.set(stateID, 0);
     combined.set(metadata, stateID.length);
+
+    // 使用工具函数计算哈希
+    return computeHash(combined);
+  }
+
+  /**
+   * 构建所有权状态ID
+   * @param tokenID 代币ID（NFT ID）
+   * @returns 状态ID字节数组
+   */
+  private static buildOwnerStateID(tokenID: TokenID): Uint8Array {
+    const stateIDStr = `nft_owner:${tokenID}`;
+    return Uint8Array.wrap(String.UTF8.encode(stateIDStr));
+  }
+
+  /**
+   * 计算所有权哈希（将地址编码为哈希）
+   * @param stateID 状态ID
+   * @param owner 所有者地址
+   * @returns 哈希值
+   */
+  private static computeOwnerHash(stateID: Uint8Array, owner: Address): Hash {
+    // 组合状态ID和地址用于哈希计算
+    const combined = new Uint8Array(stateID.length + owner.length);
+    combined.set(stateID, 0);
+    combined.set(owner, stateID.length);
 
     // 使用工具函数计算哈希
     return computeHash(combined);
